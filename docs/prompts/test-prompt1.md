@@ -47,7 +47,3 @@ Create a detailed test plan for the [FEATURE NAME] feature.
 - Use real field names and values, not placeholders
 
 - At the end: list any ambiguities or gaps in the ACs
-
-
-Mark Incomplete
-
