@@ -6,7 +6,7 @@ You are a senior QA engineer reviewing the feature described below.
 
 ## Task
 
-Create a detailed test plan for the [FEATURE NAME] feature.
+Create a detailed test plan for the  [FEATURE NAME]   feature.
 
 ## Acceptance Criteria
 

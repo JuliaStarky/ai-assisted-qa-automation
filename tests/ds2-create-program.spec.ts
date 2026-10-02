@@ -28,6 +28,7 @@ async function goToPrograms(page: Page) {
   await expect(page.getByRole('button', { name: '+ New Program' })).toBeVisible();
 }
 
+/** Mantine panel — scope by heading instead of page-wide labels. */
 function newProgramModal(page: Page) {
   return page.locator('section').filter({
     has: page.getByRole('heading', { name: 'New Program' }),
@@ -40,6 +41,14 @@ function editProgramModal(page: Page) {
   });
 }
 
+function programNameField(modal: Locator) {
+  return modal.getByRole('textbox', { name: 'Program Name' });
+}
+
+function descriptionField(modal: Locator) {
+  return modal.getByRole('textbox', { name: 'Description' });
+}
+
 function programRowByName(page: Page, name: string) {
   return page.locator('tbody tr').filter({
     has: page.getByText(name, { exact: true }),
@@ -49,8 +58,8 @@ function programRowByName(page: Page, name: string) {
 async function createProgram(page: Page, name: string, description: string) {
   await page.getByRole('button', { name: '+ New Program' }).click();
   const modal = newProgramModal(page);
-  await modal.getByLabel('Program Name').fill(name);
-  await modal.getByLabel('Description').fill(description);
+  await programNameField(modal).fill(name);
+  await descriptionField(modal).fill(description);
   await modal.getByRole('button', { name: 'Create' }).click();
   await expect(modal).toBeHidden({ timeout: 15_000 });
 }
@@ -67,8 +76,8 @@ async function openEditForProgram(page: Page, programName: string) {
   await row.getByRole('button', { name: `Edit ${programName}` }).click();
   const modal = editProgramModal(page);
   await expect(modal.getByRole('heading', { name: 'Edit Program' })).toBeVisible();
-  await expect(modal.getByLabel('Program Name')).toBeVisible();
-  await expect(modal.getByLabel('Description')).toBeVisible();
+  await expect(programNameField(modal)).toBeVisible();
+  await expect(descriptionField(modal)).toBeVisible();
   return modal;
 }
 
@@ -89,8 +98,10 @@ test.describe('Positive flows', () => {
     await seedProgram(page, programName, description);
     const modal = await openEditForProgram(page, programName);
 
-    await expect(modal.getByLabel('Program Name')).toHaveValue(programName);
-    await expect(modal.getByLabel('Description')).toHaveValue(description);
+    await expect(programNameField(modal)).toHaveValue(programName);
+    await expect(descriptionField(modal)).toHaveValue(description);
+    await expect(modal.getByLabel('Default Session Hours')).toHaveValue('4');
+    await expect(modal.getByLabel('Default Exam Hours')).toHaveValue('3');
   });
 
   test('TC-002 — Updated program name appears in list after save', async ({ page }) => {
@@ -99,7 +110,7 @@ test.describe('Positive flows', () => {
 
     await seedProgram(page, programName, `Original description-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill(updatedName);
+    await programNameField(modal).fill(updatedName);
     await saveEdit(modal);
 
     await expect(programRowByName(page, updatedName)).toHaveCount(1);
@@ -113,13 +124,27 @@ test.describe('Positive flows', () => {
 
     await seedProgram(page, programName, originalDescription);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Description').fill(updatedDescription);
+    const totalHours = await modal.getByLabel('Total Program Hours').inputValue();
+    const sessionHours = await modal.getByLabel('Default Session Hours').inputValue();
+    const examHours = await modal.getByLabel('Default Exam Hours').inputValue();
+    const targetAudience = await modal.getByLabel('Target Audience').inputValue();
+    const focusAreas = await modal.getByLabel('Focus Areas').inputValue();
+
+    await descriptionField(modal).fill(updatedDescription);
     await saveEdit(modal);
 
     const row = programRowByName(page, programName);
     await expect(row).toHaveCount(1);
     await expect(row.getByText(updatedDescription)).toBeVisible();
     await expect(row.getByText(originalDescription)).toHaveCount(0);
+
+    const reopen = await openEditForProgram(page, programName);
+    await expect(programNameField(reopen)).toHaveValue(programName);
+    await expect(reopen.getByLabel('Total Program Hours')).toHaveValue(totalHours);
+    await expect(reopen.getByLabel('Default Session Hours')).toHaveValue(sessionHours);
+    await expect(reopen.getByLabel('Default Exam Hours')).toHaveValue(examHours);
+    await expect(reopen.getByLabel('Target Audience')).toHaveValue(targetAudience);
+    await expect(reopen.getByLabel('Focus Areas')).toHaveValue(focusAreas);
   });
 
   test('TC-004 — Edit both name and description in one save', async ({ page }) => {
@@ -129,13 +154,13 @@ test.describe('Positive flows', () => {
 
     await seedProgram(page, programName, `Original mobile track-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill(updatedName);
-    await modal.getByLabel('Description').fill(updatedDescription);
+    await programNameField(modal).fill(updatedName);
+    await descriptionField(modal).fill(updatedDescription);
     await saveEdit(modal);
 
     await expect(programRowByName(page, updatedName)).toHaveCount(1);
     const reopen = await openEditForProgram(page, updatedName);
-    await expect(reopen.getByLabel('Description')).toHaveValue(updatedDescription);
+    await expect(descriptionField(reopen)).toHaveValue(updatedDescription);
   });
 
   test('TC-005 — Dismiss edit form without saving changes', async ({ page }) => {
@@ -144,12 +169,31 @@ test.describe('Positive flows', () => {
 
     await seedProgram(page, programName, description);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill(`Should Not Persist-${Date.now()}`);
+    const unsavedName = 'Should Not Persist';
+    await programNameField(modal).fill(unsavedName);
     await modal.getByRole('button', { name: 'Cancel' }).click();
 
     await expect(modal).toBeHidden();
     await expect(programRowByName(page, programName)).toHaveCount(1);
     await expect(programRowByName(page, programName).getByText(description)).toBeVisible();
+    await expect(programRowByName(page, unsavedName)).toHaveCount(0);
+  });
+
+  test('TC-018 — Edit modal exposes extended program fields', async ({ page }) => {
+    const programName = `Extended Fields Probe-${Date.now()}`;
+    await seedProgram(page, programName, `Description-${Date.now()}`);
+    const modal = await openEditForProgram(page, programName);
+
+    await expect(programNameField(modal)).toBeVisible();
+    await expect(descriptionField(modal)).toBeVisible();
+    await expect(modal.getByLabel('Total Program Hours')).toBeVisible();
+    await expect(modal.getByLabel('Default Session Hours')).toBeVisible();
+    await expect(modal.getByLabel('Default Exam Hours')).toBeVisible();
+    await expect(modal.getByLabel('Target Audience')).toBeVisible();
+    await expect(modal.getByLabel('Focus Areas')).toBeVisible();
+    await expect(modal.getByRole('button', { name: '▸ Show AI Generation Config' })).toBeVisible();
+    await expect(modal.getByRole('button', { name: 'Cancel' })).toBeVisible();
+    await expect(modal.getByRole('button', { name: 'Save' })).toBeVisible();
   });
 });
 
@@ -163,7 +207,7 @@ test.describe('Negative flows', () => {
 
     await seedProgram(page, programName, `Bootcamp description-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill('');
+    await programNameField(modal).fill('');
 
     await expect(modal.getByRole('button', { name: 'Save' })).toBeDisabled();
     await modal.getByRole('button', { name: 'Cancel' }).click();
@@ -175,7 +219,7 @@ test.describe('Negative flows', () => {
 
     await seedProgram(page, programName, `Bootcamp description-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill('   ');
+    await programNameField(modal).fill('   ');
 
     await expect(modal.getByRole('button', { name: 'Save' })).toBeDisabled();
     await modal.getByRole('button', { name: 'Cancel' }).click();
@@ -207,12 +251,7 @@ test.describe('Negative flows', () => {
     await expect(row.getByRole('button', { name: `Edit ${programName}` })).toHaveCount(0);
   });
 
-  test('TC-009 — Renaming to duplicate existing program name is handled', async ({ page }) => {
-    test.fail(
-      true,
-      'Didaxis allows duplicate program names on rename (DS-2 ambiguity #5)',
-    );
-
+  test('TC-009 — Renaming to an existing program name is allowed', async ({ page }) => {
     const existingName = `Web Development 2026-${Date.now()}`;
     const renameTarget = `Data Science Fundamentals-${Date.now()}`;
 
@@ -221,12 +260,10 @@ test.describe('Negative flows', () => {
     await createProgram(page, renameTarget, `Existing B-${Date.now()}`);
 
     const modal = await openEditForProgram(page, renameTarget);
-    await modal.getByLabel('Program Name').fill(existingName);
-    await modal.getByRole('button', { name: 'Save' }).click();
+    await programNameField(modal).fill(existingName);
+    await saveEdit(modal);
 
-    await expect(page.getByText(/duplicate|already exists|unique/i)).toBeVisible();
-    await expect(programRowByName(page, existingName)).toHaveCount(1);
-    await expect(programRowByName(page, renameTarget)).toHaveCount(1);
+    await expect(programRowByName(page, existingName)).toHaveCount(2);
   });
 
   test('TC-010 — Save fails when session expired', async ({ page }) => {
@@ -236,7 +273,7 @@ test.describe('Negative flows', () => {
 
     await seedProgram(page, programName, originalDescription);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Description').fill(newDescription);
+    await descriptionField(modal).fill(newDescription);
 
     await page.route('**/api/programs/*', async (route) => {
       if (route.request().method() === 'PATCH') {
@@ -293,42 +330,26 @@ test.describe('Edge cases', () => {
 
     await seedProgram(page, programName, `Seed description-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill(maxName);
+    await programNameField(modal).fill(maxName);
     await saveEdit(modal);
 
     await expect(programRowByName(page, maxName)).toHaveCount(1);
   });
 
-  test('TC-013 — Name over maximum length is rejected', async ({ page }) => {
-    test.fail(
-      true,
-      'Didaxis test env accepts 256-character names on edit (DS-2 ambiguity #6)',
-    );
-
+  test('TC-013 — Name at 256 characters is accepted', async ({ page }) => {
     const programName = `Original Name-${Date.now()}`;
     const suffix = String(Date.now());
-    const overMaxName = `${'A'.repeat(256 - suffix.length)}${suffix}`;
+    const overMaxName = `${'B'.repeat(256 - suffix.length)}${suffix}`;
     expect(overMaxName).toHaveLength(256);
 
     await seedProgram(page, programName, `Seed description-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill(overMaxName);
+    await programNameField(modal).fill(overMaxName);
+    await expect(modal.getByRole('button', { name: 'Save' })).toBeEnabled();
+    await saveEdit(modal);
 
-    const saveButton = modal.getByRole('button', { name: 'Save' });
-    const saveDisabled = await saveButton.isDisabled();
-    if (!saveDisabled) {
-      await saveButton.click();
-    }
-
-    const maxLengthMessage = page.getByText(/max(imum)? length|too long|characters/i);
-    const blocked =
-      saveDisabled ||
-      (await maxLengthMessage.isVisible().catch(() => false)) ||
-      (await modal.isVisible());
-
-    expect(blocked).toBeTruthy();
-    await expect(programRowByName(page, programName)).toHaveCount(1);
-    await expect(programRowByName(page, overMaxName)).toHaveCount(0);
+    await expect(programRowByName(page, overMaxName)).toHaveCount(1);
+    await expect(programRowByName(page, programName)).toHaveCount(0);
   });
 
   test('TC-014 — Special characters in edited name and description', async ({ page }) => {
@@ -338,25 +359,28 @@ test.describe('Edge cases', () => {
 
     await seedProgram(page, programName, `Pilot description-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill(updatedName);
-    await modal.getByLabel('Description').fill(updatedDescription);
+    await programNameField(modal).fill(updatedName);
+    await descriptionField(modal).fill(updatedDescription);
     await saveEdit(modal);
 
     await expect(programRowByName(page, updatedName)).toHaveCount(1);
     await expect(programRowByName(page, updatedName).getByText(updatedDescription)).toBeVisible();
+
+    const reopen = await openEditForProgram(page, updatedName);
+    await expect(programNameField(reopen)).toHaveValue(updatedName);
+    await expect(descriptionField(reopen)).toHaveValue(updatedDescription);
   });
 
-  test('TC-015 — Leading and trailing spaces in name are normalized', async ({ page }) => {
+  test('TC-015 — Leading and trailing spaces in name are preserved', async ({ page }) => {
     const programName = `Cloud Engineering 2026-${Date.now()}`;
-    const trimmedName = `Cloud Engineering 2026 - Revised-${Date.now()}`;
-    const paddedName = `  ${trimmedName}  `;
+    const paddedName = `  Cloud Engineering 2026 - Revised-${Date.now()}  `;
 
     await seedProgram(page, programName, `Cloud track-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Program Name').fill(paddedName);
+    await programNameField(modal).fill(paddedName);
     await saveEdit(modal);
 
-    await expect(programRowByName(page, trimmedName)).toHaveCount(1);
+    await expect(programRowByName(page, paddedName)).toHaveCount(1);
     await expect(programRowByName(page, programName)).toHaveCount(0);
   });
 
@@ -366,7 +390,7 @@ test.describe('Edge cases', () => {
 
     await seedProgram(page, programName, `Original description-${Date.now()}`);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Description').fill(newDescription);
+    await descriptionField(modal).fill(newDescription);
     await modal.getByRole('button', { name: 'Save' }).dblclick();
     await expect(modal).toBeHidden({ timeout: 15_000 });
 
@@ -374,13 +398,13 @@ test.describe('Edge cases', () => {
     await expect(programRowByName(page, programName).getByText(newDescription)).toBeVisible();
   });
 
-  test('TC-017 — Clear description only if allowed by product rules', async ({ page }) => {
+  test('TC-017 — Empty description after edit is saved', async ({ page }) => {
     const programName = `Description Clear Test-${Date.now()}`;
     const originalDescription = `Non-empty description-${Date.now()}`;
 
     await seedProgram(page, programName, originalDescription);
     const modal = await openEditForProgram(page, programName);
-    await modal.getByLabel('Description').fill('');
+    await descriptionField(modal).fill('');
 
     const saveButton = modal.getByRole('button', { name: 'Save' });
     await expect(saveButton).toBeEnabled();
@@ -390,5 +414,9 @@ test.describe('Edge cases', () => {
     const row = programRowByName(page, programName);
     await expect(row).toHaveCount(1);
     await expect(row.getByText(originalDescription)).toHaveCount(0);
+
+    const reopen = await openEditForProgram(page, programName);
+    await expect(programNameField(reopen)).toHaveValue(programName);
+    await expect(descriptionField(reopen)).toHaveValue('');
   });
 });

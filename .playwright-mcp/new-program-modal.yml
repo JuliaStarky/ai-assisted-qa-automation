@@ -1,0 +1,54 @@
+- dialog [ref=e88691]:
+  - banner [ref=e88692]:
+    - heading "New Program" [level=2] [ref=e88693]
+    - button [active] [ref=e88694] [cursor=pointer]
+  - generic [ref=e88698]:
+    - generic [ref=e88699]:
+      - generic [ref=e88700]: Program Name *
+      - textbox "Program Name" [ref=e88702]:
+        - /placeholder: e.g. Computer Science BSc
+    - generic [ref=e88703]:
+      - generic [ref=e88704]: Description
+      - textbox "Description" [ref=e88706]:
+        - /placeholder: Brief description
+    - separator [ref=e88707]
+    - button "▸ Show AI Generation Config" [ref=e88708] [cursor=pointer]
+    - generic [ref=e88711]:
+      - generic [ref=e88712]:
+        - generic [ref=e88713]: Total Program Hours
+        - paragraph [ref=e88714]: Required for AI curriculum generation
+        - generic [ref=e88715]:
+          - textbox [ref=e88716]:
+            - /placeholder: e.g. 900
+          - generic [ref=e88718]:
+            - button [aria-hidden] [ref=e88719] [cursor=pointer]
+            - button [aria-hidden] [ref=e88722] [cursor=pointer]
+      - generic [ref=e88725]:
+        - generic [ref=e88726]:
+          - generic [ref=e88727]: Default Session Hours
+          - generic [ref=e88728]:
+            - textbox [ref=e88729]: "4"
+            - generic [ref=e88731]
+        - generic [ref=e88738]:
+          - generic [ref=e88739]: Default Exam Hours
+          - generic [ref=e88740]:
+            - textbox [ref=e88741]: "3"
+            - generic [ref=e88743]
+      - generic [ref=e88750]:
+        - generic [ref=e88751]: Target Audience
+        - textbox [ref=e88753]:
+          - /placeholder: e.g. Career changers, no CS background
+      - generic [ref=e88754]:
+        - generic [ref=e88755]: Focus Areas
+        - textbox [ref=e88757]:
+          - /placeholder: e.g. Python, SQL, Machine Learning, Data Visualization
+      - generic [ref=e88758]:
+        - paragraph [ref=e88759]: "Sync/Async Ratio: 70% sync / 30% async"
+        - generic [ref=e88762] [cursor=pointer]:
+          - slider [ref=e88764]
+          - generic: All async
+          - generic: 50/50
+          - generic: All sync
+    - generic [ref=e88765]:
+      - button "Cancel" [ref=e88766] [cursor=pointer]
+      - button "Create" [disabled] [ref=e88769]

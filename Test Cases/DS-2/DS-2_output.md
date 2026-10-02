@@ -1,8 +1,8 @@
 # Test Plan: Edit Existing Program Details
 
 **Feature:** Edit existing program details  
-**Ticket:** DS-2  
-**Scope:** Programs page — edit action on a program row/modal (Name, Description, Save)
+**Ticket:** DS-2 — *Edit existing program details* (Jira)  
+**Scope:** Programs page (`/programs`) — row actions open **Edit Program** modal (Mantine `section`, not `role="dialog"`). Editable fields observed in test: **Program Name \***, **Description**, **Total Program Hours**, **Default Session Hours**, **Default Exam Hours**, **Target Audience**, **Focus Areas**, plus **▸ Show AI Generation Config**. Primary actions: **Cancel**, **Save**. Row actions use accessible names **`Edit {program name}`** and **`Delete {program name}`** (icon buttons).
 
 ---
 
@@ -19,11 +19,11 @@
 
 1. Navigate to the Programs page.
 2. Confirm **Web Development 2026** is listed.
-3. Click the edit icon on **Web Development 2026**.
+3. Click **`Edit Web Development 2026`** on that row.
 
 **Expected result**
 
-The edit form opens. **Name** and **Description** (and any other editable fields) match the program’s stored values.
+The **Edit Program** modal opens. **Program Name** and **Description** match the program’s stored values. **Default Session Hours** and **Default Exam Hours** show the program defaults (e.g. `4` and `3` when not customized on create). Other extended fields reflect stored values or empty defaults.
 
 **Gherkin**
 
@@ -31,8 +31,8 @@ The edit form opens. **Name** and **Description** (and any other editable fields
 Scenario: Open program for editing
   Given I am on the Programs page
   And a program "Web Development 2026" exists
-  When I click the edit icon on "Web Development 2026"
-  Then I see the edit form pre-populated with the program's current data
+  When I click "Edit Web Development 2026"
+  Then I see the Edit Program form pre-populated with the program's current data
 ```
 
 ---
@@ -46,7 +46,7 @@ Scenario: Open program for editing
 
 **Steps**
 
-1. Change **Name** to `Web Development 2026 - Updated`.
+1. Change **Program Name** to `Web Development 2026 - Updated`.
 2. Click **Save**.
 
 **Expected result**
@@ -75,13 +75,13 @@ Scenario: Successfully edit a program name
 
 **Steps**
 
-1. Note the current **Name** and any other fields besides **Description**.
+1. Note **Program Name**, **Default Session Hours**, **Default Exam Hours**, **Total Program Hours**, **Target Audience**, and **Focus Areas**.
 2. Change **Description** to `Updated curriculum for 2026 cohort`.
 3. Click **Save**.
 
 **Expected result**
 
-The modal closes. **Name** remains `Data Science Fundamentals`. **Description** reflects the new text. Other fields match their pre-edit values.
+The modal closes. **Program Name** remains `Data Science Fundamentals`. **Description** reflects the new text. **Default Session Hours**, **Default Exam Hours**, and other unchanged fields match their pre-edit values.
 
 **Gherkin**
 
@@ -105,7 +105,7 @@ Scenario: Edit preserves unchanged fields
 **Steps**
 
 1. Open edit for **Mobile Development 2026**.
-2. Set **Name** to `Mobile Development 2026 - Advanced`.
+2. Set **Program Name** to `Mobile Development 2026 - Advanced`.
 3. Set **Description** to `iOS and Android track with capstone project`.
 4. Click **Save**.
 
@@ -137,8 +137,8 @@ Scenario: Update name and description together
 
 **Steps**
 
-1. Change **Name** to `Should Not Persist`.
-2. Dismiss the form (Cancel, X, or equivalent) without **Save**.
+1. Change **Program Name** to `Should Not Persist`.
+2. Click **Cancel** without **Save**.
 
 **Expected result**
 
@@ -169,12 +169,12 @@ Scenario: Cancel edit discards unsaved changes
 
 **Steps**
 
-1. Clear the **Name** field completely.
+1. Clear the **Program Name** field completely.
 2. Attempt to click **Save**.
 
 **Expected result**
 
-**Save** is disabled or validation blocks submit. Original program name remains in the list after dismiss or failed save.
+**Save** is **disabled** (observed in test env). Original program name remains in the list after **Cancel**.
 
 **Gherkin**
 
@@ -197,12 +197,12 @@ Scenario: Empty program name on edit is rejected
 
 **Steps**
 
-1. Replace **Name** with `   ` (spaces only).
+1. Replace **Program Name** with `   ` (spaces only).
 2. Attempt **Save**.
 
 **Expected result**
 
-Save blocked; list still shows **Cybersecurity Bootcamp**.
+**Save** is **disabled**; list still shows **Cybersecurity Bootcamp**.
 
 **Gherkin**
 
@@ -231,7 +231,7 @@ Scenario: Whitespace-only name on edit is rejected
 
 **Expected result**
 
-Edit icon is hidden, disabled, or opening edit is denied. Program data cannot be changed via UI.
+**Edit {program name}** is hidden, disabled, or opening edit is denied. Program data cannot be changed via UI.
 
 **Gherkin**
 
@@ -246,32 +246,32 @@ Scenario: Non-admin cannot edit programs
 
 ---
 
-### TC-009 — Renaming to duplicate existing program name is handled
+### TC-009 — Renaming to an existing program name is allowed (current product behavior)
 
 | Field | Value |
 |-------|--------|
-| **Preconditions** | Programs **Web Development 2026** and **Data Science Fundamentals** both exist. User edits **Data Science Fundamentals**. |
-| **Priority** | Medium |
+| **Preconditions** | Two distinct programs exist with different names. User edits the second program. |
+| **Priority** | Low |
 
 **Steps**
 
-1. Change **Name** to `Web Development 2026`.
-2. Click **Save** (if enabled).
+1. Change **Program Name** to match the first program’s name exactly.
+2. Click **Save**.
 
 **Expected result**
 
-Clear error or validation; no ambiguous duplicate display names without policy confirmation. **Data Science Fundamentals** row remains distinct or save fails visibly.
+Save succeeds with no duplicate-name error (observed in test env). The list may show **two rows** with the same display name; rows remain distinguishable by description or internal identity.
 
 **Gherkin**
 
 ```gherkin
-Scenario: Duplicate name on edit
-  Given I am editing "Data Science Fundamentals"
-  And a program "Web Development 2026" already exists
-  When I change the Name to "Web Development 2026"
+Scenario: Duplicate display name on edit is allowed
+  Given two programs with different names exist
+  When I rename the second program to match the first program's name
   And I click Save
-  Then I see a validation or error message about the duplicate name
-  And the program list does not show two indistinguishable "Web Development 2026" entries
+  Then the modal closes
+  And the program list contains two rows with that display name
+  And I do not see a duplicate-name validation message
 ```
 
 ---
@@ -345,12 +345,12 @@ Scenario: Save without modifications
 
 **Steps**
 
-1. Set **Name** to a string of exactly 255 characters.
+1. Set **Program Name** to a string of exactly 255 characters (unique suffix recommended so list lookup stays unambiguous).
 2. Click **Save**.
 
 **Expected result**
 
-Save succeeds; list displays the full name or documented truncation consistently.
+Save succeeds; list displays the full 255-character name.
 
 **Gherkin**
 
@@ -365,7 +365,7 @@ Scenario: Edit name to max length
 
 ---
 
-### TC-013 — Name over maximum length is rejected
+### TC-013 — Name at 256 characters is accepted (no client max-length guard)
 
 | Field | Value |
 |-------|--------|
@@ -374,21 +374,22 @@ Scenario: Edit name to max length
 
 **Steps**
 
-1. Set **Name** to 256 characters.
-2. Attempt **Save**.
+1. Set **Program Name** to 256 characters.
+2. Click **Save**.
 
 **Expected result**
 
-Validation error or disabled **Save**; previous name remains in list.
+**Save** remains enabled and save succeeds in test env (no max-length message). List shows the updated 256-character name. *Product gap: server/UI max length not enforced on edit.*
 
 **Gherkin**
 
 ```gherkin
-Scenario: Edit name over max length is rejected
+Scenario: Edit name to 256 characters succeeds without validation
   Given I am editing a program
-  When I change the Name to a string of 256 characters
-  Then the Save button is disabled or I see a max-length validation message
-  And the program list shows the original program name
+  When I change the Program Name to a string of 256 characters
+  And I click Save
+  Then the modal closes
+  And the program list shows the 256-character name
 ```
 
 ---
@@ -424,7 +425,7 @@ Scenario: Special characters on edit
 
 ---
 
-### TC-015 — Leading and trailing spaces in name are normalized
+### TC-015 — Leading and trailing spaces in name are preserved
 
 | Field | Value |
 |-------|--------|
@@ -438,17 +439,17 @@ Scenario: Special characters on edit
 
 **Expected result**
 
-List shows `Cloud Engineering 2026 - Revised` (trimmed) or validation rejects untrimmed input—per product rules.
+List shows the name **with leading/trailing spaces preserved** (not trimmed on save in test env).
 
 **Gherkin**
 
 ```gherkin
-Scenario: Trim spaces on edited name
+Scenario: Leading and trailing spaces are kept on edited name
   Given I am editing "Cloud Engineering 2026"
-  When I change the Name to "  Cloud Engineering 2026 - Revised  "
+  When I change the Program Name to "  Cloud Engineering 2026 - Revised  "
   And I click Save
-  Then the program list shows "Cloud Engineering 2026 - Revised"
-  And the program list does not show "  Cloud Engineering 2026 - Revised  "
+  Then the program list shows "  Cloud Engineering 2026 - Revised  "
+  And the program list does not show the original name without padding
 ```
 
 ---
@@ -497,7 +498,7 @@ Scenario: Double submit on Save
 
 **Expected result**
 
-Either empty description is saved, or validation requires description—behavior documented and consistent with create flow (DS-1).
+Empty **Description** is **saved**; **Save** stays enabled (confirmed in test env, consistent with optional description on create).
 
 **Gherkin**
 
@@ -507,7 +508,34 @@ Scenario: Empty description after edit
   When I clear the Description field
   And I click Save
   Then the Name remains unchanged
-  And the Description is empty or validation prevents save according to product rules
+  And the Description is empty in the list and on reopen
+```
+
+---
+
+### TC-018 — Edit modal exposes extended program fields
+
+| Field | Value |
+|-------|--------|
+| **Preconditions** | User is logged in as admin on the Programs page. |
+| **Priority** | Medium |
+
+**Steps**
+
+1. Open **Edit Program** for any existing program.
+
+**Expected result**
+
+Modal shows **Program Name \***, **Description**, **Total Program Hours**, **Default Session Hours**, **Default Exam Hours**, **Target Audience**, **Focus Areas**, and **▸ Show AI Generation Config**, with **Cancel** and **Save**.
+
+**Gherkin**
+
+```gherkin
+Scenario: Edit modal shows all program fields
+  Given I am on the Programs page
+  When I open Edit Program for an existing program
+  Then I see Program Name, Description, and the extended hour and metadata fields
+  And I see Cancel and Save actions
 ```
 
 ---
@@ -524,14 +552,14 @@ Scenario: Empty description after edit
 
 ## Ambiguities and gaps in acceptance criteria
 
-1. **Field labels** — Create flow uses **Program Name** (DS-1); edit AC uses **Name**. Assumed same field; label consistency not specified.
+1. **Field labels** — Jira AC says **Name**; UI label is **Program Name \*** (same field as DS-1 create).
 2. **Admin login** — User story says admin; open-edit scenario does not repeat "logged in as admin" (TC-008 assumes role rules).
-3. **Edit entry point** — Only "edit icon" is mentioned; no AC for row click, kebab menu, or keyboard access.
-4. **Empty / whitespace name on edit** — Not in ACs; inferred from create validation (TC-006, TC-007).
-5. **Duplicate names on rename** — Not specified (TC-009).
-6. **Max length** — Limits for **Name** and **Description** on edit not stated (TC-012, TC-013).
-7. **Cancel / dismiss** — Unsaved changes behavior not in ACs (TC-005).
-8. **Description required** — Clearing description on edit not defined (TC-017).
+3. **Edit entry point** — AC says "edit icon"; UI exposes **`Edit {program name}`** (and **Delete {program name}`**) as icon buttons with accessible names.
+4. **Extended fields** — AC only mentions name/description; edit modal includes hours and metadata fields (TC-018, TC-003).
+5. **Duplicate names on rename** — Not in ACs; test env **allows** duplicate display names (TC-009).
+6. **Max length** — No client-side max on edit for **Program Name** up to at least 256 characters (TC-013); 255-char save verified (TC-012).
+7. **Cancel / dismiss** — Unsaved changes behavior not in ACs (TC-005 uses **Cancel**).
+8. **Description required** — Optional on edit; empty description saves (TC-017).
 9. **Immediate list update** — AC requires immediate list refresh after name edit; no AC for loading states, errors, or optimistic UI rollback.
 10. **Concurrent edit** — Two admins editing the same program; last-write-wins vs. conflict detection not covered.
-11. **"Other fields"** — AC mentions other fields unchanged but does not enumerate them (dates, status, IDs, etc.).
+11. **Default hours** — **Default Session Hours** / **Default Exam Hours** may show defaults (`4` / `3`) when not set on create; persistence rules for **Total Program Hours** unclear.

@@ -1,0 +1,64 @@
+- generic [ref=e26]:
+  - navigation [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - img "Didaxis Studio" [ref=e30]
+        - generic [ref=e31]:
+          - paragraph [ref=e32]: Didaxis
+          - paragraph [ref=e33]: Studio
+      - generic [ref=e34]:
+        - button "📊 Dashboard" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: 📊
+          - paragraph [ref=e37]: Dashboard
+        - button "🎓 Programs" [ref=e38] [cursor=pointer]:
+          - generic [ref=e39]: 🎓
+          - paragraph [ref=e40]: Programs
+        - button "📅 Calendar" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 📅
+          - paragraph [ref=e43]: Calendar
+        - button "✅ Validation" [ref=e44] [cursor=pointer]:
+          - generic [ref=e45]: ✅
+          - paragraph [ref=e46]: Validation
+        - button "⚡ Scheduler" [ref=e47] [cursor=pointer]:
+          - generic [ref=e48]: ⚡
+          - paragraph [ref=e49]: Scheduler
+        - button "📤 Export" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: 📤
+          - paragraph [ref=e52]: Export
+      - button "⚙️ Settings" [ref=e54] [cursor=pointer]:
+        - generic [ref=e55]: ⚙️
+        - paragraph [ref=e56]: Settings
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]: A
+          - generic [ref=e61]:
+            - paragraph [ref=e62]: Admin
+            - paragraph [ref=e63]: Didaxis Studio
+        - button [ref=e64] [cursor=pointer]:
+          - paragraph [ref=e68]: Sign out
+  - main [ref=e69]:
+    - generic [ref=e88988]:
+      - generic [ref=e88989]:
+        - generic [ref=e88990]:
+          - generic [ref=e88991]:
+            - heading "Course Builder" [level=2] [ref=e88992]
+            - paragraph [ref=e88993]: Define courses and session plans for Web Development 2026-1790958609639
+          - button "Back to Programs" [ref=e88995] [cursor=pointer]
+        - generic [ref=e88998]:
+          - paragraph [ref=e88999] [cursor=pointer]: Programs
+          - paragraph [ref=e89000]: /
+          - paragraph [ref=e89001]: Web Development 2026-1790958609639
+          - paragraph [ref=e89002]: /
+          - paragraph [ref=e89003]: Courses
+      - generic [ref=e89004]:
+        - generic [ref=e89005]:
+          - generic [ref=e89006]:
+            - paragraph [ref=e89007]: Courses
+            - button "+ New Course" [disabled] [ref=e89008]
+          - generic [ref=e89012]:
+            - paragraph [ref=e89013]: 📚
+            - paragraph [ref=e89014]: No courses yet. Add the first course for this program.
+            - button "Create Course" [disabled] [ref=e89015]
+        - generic [ref=e89020]:
+          - paragraph [ref=e89021]: 🧩
+          - paragraph [ref=e89022]: Select a course to manage its session plans.
