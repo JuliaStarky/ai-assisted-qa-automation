@@ -7,6 +7,7 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
+    "test:manual:programs": "playwright test --config=playwright.manual.config.ts programs-bulk-cleanup.spec.ts",
     "report": "playwright show-report"
   },
   "repository": {

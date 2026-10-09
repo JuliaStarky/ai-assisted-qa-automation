@@ -1,4 +1,4 @@
-import { test, expect, type Locator, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page, type TrackProgram } from '../fixtures/cleanup.fixture';
 
 const baseUrl = process.env.DIDAXIS_URL ?? 'https://test.didaxis.studio';
 const loginUrl = `${baseUrl}/login`;
@@ -58,12 +58,40 @@ function programRowByName(page: Page, name: string) {
   });
 }
 
-async function createProgram(page: Page, name: string, description: string) {
+function isCreateProgramPost(url: string, method: string) {
+  return url.includes('/api/programs') && method === 'POST';
+}
+
+async function trackProgramFromCreateResponse(
+  responsePromise: Promise<Awaited<ReturnType<Page['waitForResponse']>>>,
+  trackProgram: TrackProgram,
+) {
+  const response = await responsePromise;
+  if (!response.ok()) {
+    return;
+  }
+  const body = (await response.json()) as { data?: { id?: string } };
+  const id = body.data?.id;
+  if (id) {
+    trackProgram(id);
+  }
+}
+
+async function createProgram(
+  page: Page,
+  name: string,
+  description: string,
+  trackProgram: TrackProgram,
+) {
+  const responsePromise = page.waitForResponse((resp) =>
+    isCreateProgramPost(resp.url(), resp.request().method()),
+  );
   const modal = await openNewProgramModal(page);
   await programNameField(modal).fill(name);
   await descriptionField(modal).fill(description);
   await modal.getByRole('button', { name: 'Create' }).click();
   await expect(modal).toBeHidden({ timeout: 15_000 });
+  await trackProgramFromCreateResponse(responsePromise, trackProgram);
 }
 
 test.describe('Positive flows', () => {
@@ -80,22 +108,22 @@ test.describe('Positive flows', () => {
     await expect(modal.getByRole('button', { name: 'Create' })).toBeVisible();
   });
 
-  test('TC-002 — New program appears in list after successful create', async ({ page }) => {
+  test('TC-002 — New program appears in list after successful create', async ({ page, trackProgram }) => {
     const programName = `Web Development 2026-${Date.now()}`;
     const description = `Full-stack web development program-${Date.now()}`;
 
     await goToPrograms(page);
-    await createProgram(page, programName, description);
+    await createProgram(page, programName, description, trackProgram);
 
     await expect(programRowByName(page, programName)).toHaveCount(1);
   });
 
-  test('TC-003 — Program can be created with valid name and description', async ({ page }) => {
+  test('TC-003 — Program can be created with valid name and description', async ({ page, trackProgram }) => {
     const programName = `Data Science Fundamentals-${Date.now()}`;
     const description = `Introductory data science track-${Date.now()}`;
 
     await goToPrograms(page);
-    await createProgram(page, programName, description);
+    await createProgram(page, programName, description, trackProgram);
 
     const row = programRowByName(page, programName);
     await expect(row).toHaveCount(1);
@@ -160,7 +188,7 @@ test.describe('Negative flows', () => {
     await expect(newProgramModal(page)).toHaveCount(0);
   });
 
-  test('TC-008 — Duplicate program name is not silently accepted', async ({ page }) => {
+  test('TC-008 — Duplicate program name is not silently accepted', async ({ page, trackProgram }) => {
     test.fail(
       true,
       'Didaxis test env allows duplicate program names without validation (DS-1 ambiguity #2)',
@@ -168,13 +196,17 @@ test.describe('Negative flows', () => {
 
     const programName = `Web Development 2026-${Date.now()}`;
 
-    await createProgram(page, programName, `Original description-${Date.now()}`);
+    await createProgram(page, programName, `Original description-${Date.now()}`, trackProgram);
 
+    const duplicateResponse = page.waitForResponse((resp) =>
+      isCreateProgramPost(resp.url(), resp.request().method()),
+    );
     const modal = await openNewProgramModal(page);
     await programNameField(modal).fill(programName);
     await descriptionField(modal).fill(`Duplicate attempt-${Date.now()}`);
     await modal.getByRole('button', { name: 'Create' }).click();
     await expect(modal).toBeHidden({ timeout: 15_000 });
+    await trackProgramFromCreateResponse(duplicateResponse, trackProgram);
 
     await expect(page.getByText(/duplicate|already exists|unique/i)).toBeVisible();
     await expect(programRowByName(page, programName)).toHaveCount(1);
@@ -221,12 +253,12 @@ test.describe('Edge cases', () => {
     await goToPrograms(page);
   });
 
-  test('TC-010 — Program name at maximum allowed length', async ({ page }) => {
+  test('TC-010 — Program name at maximum allowed length', async ({ page, trackProgram }) => {
     const suffix = String(Date.now());
     const programName = `${'A'.repeat(255 - suffix.length)}${suffix}`;
     expect(programName).toHaveLength(255);
 
-    await createProgram(page, programName, `Max length name test-${Date.now()}`);
+    await createProgram(page, programName, `Max length name test-${Date.now()}`, trackProgram);
     await expect(programRowByName(page, programName)).toHaveCount(1);
   });
 
@@ -255,16 +287,19 @@ test.describe('Edge cases', () => {
     await expect(programRowByName(page, programName)).toHaveCount(0);
   });
 
-  test('TC-012 — Special characters in program name and description', async ({ page }) => {
+  test('TC-012 — Special characters in program name and description', async ({ page, trackProgram }) => {
     const programName = `QA & Testing — Cohort #1 (2026)-${Date.now()}`;
     const description = `Description with "quotes", <tags>, and émojis 🎓-${Date.now()}`;
 
-    await createProgram(page, programName, description);
+    await createProgram(page, programName, description, trackProgram);
     await expect(programRowByName(page, programName)).toHaveCount(1);
   });
 
-  test('TC-013 — Empty description with valid program name', async ({ page }) => {
+  test('TC-013 — Empty description with valid program name', async ({ page, trackProgram }) => {
     const programName = `Cybersecurity Bootcamp-${Date.now()}`;
+    const responsePromise = page.waitForResponse((resp) =>
+      isCreateProgramPost(resp.url(), resp.request().method()),
+    );
     const modal = await openNewProgramModal(page);
 
     await programNameField(modal).fill(programName);
@@ -274,19 +309,20 @@ test.describe('Edge cases', () => {
     await expect(createButton).toBeEnabled();
     await createButton.click();
     await expect(modal).toBeHidden({ timeout: 15_000 });
+    await trackProgramFromCreateResponse(responsePromise, trackProgram);
     await expect(programRowByName(page, programName)).toHaveCount(1);
   });
 
-  test('TC-014 — Leading and trailing spaces in program name are normalized', async ({ page }) => {
+  test('TC-014 — Leading and trailing spaces in program name are normalized', async ({ page, trackProgram }) => {
     const programName = `Mobile Development 2026-${Date.now()}`;
     const paddedName = `  ${programName}  `;
 
-    await createProgram(page, paddedName, `Trim behavior check-${Date.now()}`);
+    await createProgram(page, paddedName, `Trim behavior check-${Date.now()}`, trackProgram);
 
     await expect(programRowByName(page, programName)).toHaveCount(1);
   });
 
-  test('TC-015 — Rapid double-click on Create does not duplicate program', async ({ page }) => {
+  test('TC-015 — Rapid double-click on Create does not duplicate program', async ({ page, trackProgram }) => {
     test.fail(
       true,
       'Didaxis test env creates two programs on double-click Create (DS-1 TC-015)',
@@ -297,8 +333,30 @@ test.describe('Edge cases', () => {
 
     await programNameField(modal).fill(programName);
     await descriptionField(modal).fill(`Double submit test-${Date.now()}`);
+
+    const createdIds: string[] = [];
+    const parseCreates: Promise<void>[] = [];
+    const onCreateResponse = (resp: Awaited<ReturnType<Page['waitForResponse']>>) => {
+      parseCreates.push(
+        (async () => {
+          if (!isCreateProgramPost(resp.url(), resp.request().method()) || !resp.ok()) {
+            return;
+          }
+          const body = (await resp.json()) as { data?: { id?: string } };
+          if (body.data?.id) {
+            createdIds.push(body.data.id);
+          }
+        })(),
+      );
+    };
+    page.on('response', onCreateResponse);
     await modal.getByRole('button', { name: 'Create' }).dblclick();
     await expect(modal).toBeHidden({ timeout: 15_000 });
+    await Promise.all(parseCreates);
+    page.off('response', onCreateResponse);
+    for (const id of createdIds) {
+      trackProgram(id);
+    }
 
     await expect(programRowByName(page, programName)).toHaveCount(1);
   });
