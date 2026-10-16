@@ -1,7 +1,8 @@
-import { test as setup } from '@playwright/test';
+import { expect, test as setup } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
-import { goToPrograms, signIn } from '../fixtures/didaxis.helpers';
+import { LoginPage } from '../pages/LoginPage';
+import { ProgramsPage } from '../pages/ProgramsPage';
 
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
@@ -17,8 +18,14 @@ function adminCredentials(): { email: string; password: string } {
 setup('authenticate', async ({ page }) => {
   const { email, password } = adminCredentials();
 
-  await signIn(page, email, password);
-  await goToPrograms(page);
+  const loginPage = new LoginPage(page);
+  await loginPage.goto();
+  await loginPage.signIn(email, password);
+
+  const programsPage = new ProgramsPage(page);
+  await programsPage.goto();
+  await expect(programsPage.heading).toBeVisible();
+  await expect(programsPage.newProgramButton).toBeVisible();
 
   fs.mkdirSync(path.dirname(authFile), { recursive: true });
   await page.context().storageState({ path: authFile });

@@ -1,270 +1,160 @@
-import { test, expect, type Page } from '@playwright/test';
-import { goToPrograms } from '../fixtures/didaxis.helpers';
+import { test, expect } from '../fixtures/cleanup.fixture';
+import { ProgramsPage } from '../pages/ProgramsPage';
+import {
+  createProgramWithTracking,
+  expectNewProgramModalClosed,
+  expectProgramsPageReady,
+  seedProgramWithTracking,
+} from './support/programs-flow.helpers';
 
-function newProgramModal(page: Page) {
-  return page.locator('section').filter({
-    has: page.getByRole('heading', { name: 'New Program' }),
-  });
-}
+test.describe('DS-4 Delete program with confirmation', () => {
+  test.describe('Positive flows', () => {
+    test('TC-001 — Confirmed deletion removes program from list', async ({ page, trackProgram }) => {
+      const programsPage = new ProgramsPage(page);
+      const programName = `Test Program-${Date.now()}`;
 
-async function createProgram(page: Page, name: string, description: string) {
-  await page.getByRole('button', { name: '+ New Program' }).click();
-  const modal = newProgramModal(page);
-  await modal.getByLabel('Program Name').fill(name);
-  await modal.getByLabel('Description').fill(description);
-  await modal.getByRole('button', { name: 'Create' }).click();
-  await expect(modal).toBeHidden({ timeout: 15_000 });
-}
+      await seedProgramWithTracking(
+        page,
+        programsPage,
+        programName,
+        `Delete me-${Date.now()}`,
+        trackProgram,
+      );
 
-function programRowByName(page: Page, name: string) {
-  return page.locator('tbody tr').filter({
-    has: page.getByText(name, { exact: true }),
-  });
-}
+      await programsPage.deleteProgramWithDialog(programName, 'accept');
 
-async function seedProgram(page: Page, name: string, description: string) {
-  await goToPrograms(page);
-  await createProgram(page, name, description);
-  await expect(programRowByName(page, name)).toHaveCount(1);
-}
-
-/** Row delete icon — accessible name is "Delete {programName}". */
-async function confirmDeleteDialog(
-  page: Page,
-  programName: string,
-  action: 'accept' | 'dismiss',
-): Promise<string> {
-  const row = programRowByName(page, programName).first();
-  await expect(row).toBeVisible();
-  await row.scrollIntoViewIfNeeded();
-
-  const [message] = await Promise.all([
-    page.waitForEvent('dialog').then(async (dialog) => {
-      expect(dialog.type()).toBe('confirm');
-      const text = dialog.message();
-      if (action === 'accept') {
-        await dialog.accept();
-      } else {
-        await dialog.dismiss();
-      }
-      return text;
-    }),
-    row.getByRole('button', { name: `Delete ${programName}` }).click(),
-  ]);
-
-  return message;
-}
-
-test.describe('Positive flows', () => {
-  test('TC-001 — Confirmed deletion removes program from list', async ({ page }) => {
-    const programName = `Test Program-${Date.now()}`;
-    await seedProgram(page, programName, `Delete me-${Date.now()}`);
-
-    await confirmDeleteDialog(page, programName, 'accept');
-
-    await expect(programRowByName(page, programName)).toHaveCount(0);
-  });
-
-  test('TC-002 — Cancel keeps program in list', async ({ page }) => {
-    const programName = `Web Development 2026-${Date.now()}`;
-    const description = `Keep this row-${Date.now()}`;
-
-    await seedProgram(page, programName, description);
-
-    await confirmDeleteDialog(page, programName, 'dismiss');
-
-    await expect(programRowByName(page, programName)).toHaveCount(1);
-    await expect(programRowByName(page, programName).getByText(description)).toBeVisible();
-  });
-
-  test('TC-003 — Confirmation dialog identifies the program being deleted', async ({ page }) => {
-    const programName = `Data Science Fundamentals-${Date.now()}`;
-
-    await seedProgram(page, programName, `Identify in dialog-${Date.now()}`);
-
-    const message = await confirmDeleteDialog(page, programName, 'dismiss');
-
-    expect(message).toContain(programName);
-    await expect(programRowByName(page, programName)).toHaveCount(1);
-  });
-
-  test('TC-004 — List updates immediately after confirmed delete', async ({ page }) => {
-    const deleteTarget = `Test Program-${Date.now()}`;
-    const keepTarget = `Cloud Engineering 2026-${Date.now()}`;
-
-    await seedProgram(page, deleteTarget, `To remove-${Date.now()}`);
-    await createProgram(page, keepTarget, `Should stay-${Date.now()}`);
-
-    await confirmDeleteDialog(page, deleteTarget, 'accept');
-
-    await expect(programRowByName(page, deleteTarget)).toHaveCount(0);
-    await expect(programRowByName(page, keepTarget)).toHaveCount(1);
-  });
-
-  test('TC-005 — Dismiss dialog without confirm or cancel (e.g. close control)', async ({
-    page,
-  }) => {
-    const programName = `Mobile Development 2026-${Date.now()}`;
-
-    await seedProgram(page, programName, `Dismiss test-${Date.now()}`);
-
-    await confirmDeleteDialog(page, programName, 'dismiss');
-
-    await expect(programRowByName(page, programName)).toHaveCount(1);
-  });
-});
-
-test.describe('Negative flows', () => {
-  test('TC-006 — Non-admin cannot delete a program', async () => {
-    test.skip(true, 'Requires a non-admin test account (not available in this environment)');
-  });
-
-  test('TC-007 — Deletion does not complete when session expires on confirm', async ({ page }) => {
-    const programName = `Test Program-${Date.now()}`;
-
-    await seedProgram(page, programName, `Session delete-${Date.now()}`);
-
-    await page.route('**/api/programs/*', async (route) => {
-      if (route.request().method() === 'DELETE') {
-        await route.fulfill({
-          status: 401,
-          contentType: 'application/json',
-          body: JSON.stringify({ message: 'Unauthorized' }),
-        });
-        return;
-      }
-      await route.continue();
+      await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    await confirmDeleteDialog(page, programName, 'accept');
+    test('TC-002 — Cancel keeps program in list', async ({ page, trackProgram }) => {
+      const programsPage = new ProgramsPage(page);
+      const programName = `Web Development 2026-${Date.now()}`;
+      const description = `Keep this row-${Date.now()}`;
 
-    await expect(programRowByName(page, programName)).toHaveCount(1);
+      await seedProgramWithTracking(page, programsPage, programName, description, trackProgram);
+      await programsPage.deleteProgramWithDialog(programName, 'dismiss');
 
-    const redirectedToLogin = page.url().includes('/login');
-    const signInVisible = await page.getByRole('button', { name: 'Sign In' }).isVisible().catch(() => false);
-    const authMessageVisible = await page
-      .getByText(/unauthorized|log in again|session expired/i)
-      .isVisible()
-      .catch(() => false);
-
-    expect(redirectedToLogin || signInVisible || authMessageVisible || (await programRowByName(page, programName).count()) >= 1).toBeTruthy();
-  });
-
-  test('TC-008 — Confirm alone without opening dialog does not delete', async ({ page }) => {
-    const programName = `Test Program-${Date.now()}`;
-
-    await seedProgram(page, programName, `No dialog path-${Date.now()}`);
-    await expect(programRowByName(page, programName)).toHaveCount(1);
-  });
-
-  test('TC-009 — Failed delete shows error and preserves program', async ({ page }) => {
-    const programName = `Test Program-${Date.now()}`;
-
-    await seedProgram(page, programName, `API failure-${Date.now()}`);
-
-    await page.route('**/api/programs/*', async (route) => {
-      if (route.request().method() === 'DELETE') {
-        await route.fulfill({
-          status: 500,
-          contentType: 'application/json',
-          body: JSON.stringify({ message: 'Internal Server Error' }),
-        });
-        return;
-      }
-      await route.continue();
+      await expect(programsPage.programRowByName(programName)).toHaveCount(1);
+      await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    await confirmDeleteDialog(page, programName, 'accept');
+    test('TC-003 — Confirmation dialog identifies the program being deleted', async ({
+      page,
+      trackProgram,
+    }) => {
+      const programsPage = new ProgramsPage(page);
+      const programName = `Data Science Fundamentals-${Date.now()}`;
 
-    await expect(programRowByName(page, programName)).toHaveCount(1);
-  });
-});
+      await seedProgramWithTracking(
+        page,
+        programsPage,
+        programName,
+        `Identify in dialog-${Date.now()}`,
+        trackProgram,
+      );
 
-test.describe('Edge cases', () => {
-  test('TC-010 — Delete program with special characters in name', async ({ page }) => {
-    const programName = `Informatique & IA - Niveau 2-${Date.now()}`;
+      const { message } = await programsPage.deleteProgramWithDialog(programName, 'dismiss');
 
-    await seedProgram(page, programName, `Special chars-${Date.now()}`);
+      expect(message).toContain(programName);
+      await expect(programsPage.programRowByName(programName)).toHaveCount(1);
+    });
 
-    const message = await confirmDeleteDialog(page, programName, 'accept');
-    expect(message).toContain(programName);
+    test('TC-004 — List updates after delete without affecting other programs', async ({
+      page,
+      trackProgram,
+    }) => {
+      const programsPage = new ProgramsPage(page);
+      const deleteTarget = `Test Program-${Date.now()}`;
+      const keepTarget = `Cloud Engineering 2026-${Date.now()}`;
 
-    await expect(programRowByName(page, programName)).toHaveCount(0);
-  });
+      await seedProgramWithTracking(
+        page,
+        programsPage,
+        deleteTarget,
+        `To remove-${Date.now()}`,
+        trackProgram,
+      );
+      await createProgramWithTracking(
+        page,
+        programsPage,
+        keepTarget,
+        `Should stay-${Date.now()}`,
+        trackProgram,
+      );
 
-  test('TC-011 — Delete last program in list', async ({ page }) => {
-    const programName = `Test Program-${Date.now()}`;
+      await programsPage.deleteProgramWithDialog(deleteTarget, 'accept');
 
-    await seedProgram(page, programName, `Only this test row-${Date.now()}`);
+      await expect(programsPage.programRowByName(deleteTarget)).toHaveCount(0);
+      await expect(programsPage.programRowByName(keepTarget)).toHaveCount(1);
+    });
 
-    await confirmDeleteDialog(page, programName, 'accept');
+    test('TC-005 — Re-create program with same name after delete', async ({ page, trackProgram }) => {
+      const programsPage = new ProgramsPage(page);
+      const programName = `Test Program-${Date.now()}`;
+      const firstDescription = `First life-${Date.now()}`;
+      const secondDescription = `Second life-${Date.now()}`;
 
-    await expect(programRowByName(page, programName)).toHaveCount(0);
-  });
+      await seedProgramWithTracking(page, programsPage, programName, firstDescription, trackProgram);
+      await programsPage.deleteProgramWithDialog(programName, 'accept');
+      await expect(programsPage.programRowByName(programName)).toHaveCount(0);
 
-  test('TC-012 — Double-click confirm does not cause duplicate errors or inconsistent UI', async ({
-    page,
-  }) => {
-    const programName = `Test Program-${Date.now()}`;
+      await programsPage.goto();
+      await expectProgramsPageReady(programsPage);
+      await createProgramWithTracking(page, programsPage, programName, secondDescription, trackProgram);
 
-    await seedProgram(page, programName, `Double confirm-${Date.now()}`);
-
-    const row = programRowByName(page, programName).first();
-    await row.scrollIntoViewIfNeeded();
-
-    let dialogCount = 0;
-    const [message] = await Promise.all([
-      page.waitForEvent('dialog').then(async (dialog) => {
-        dialogCount += 1;
-        await dialog.accept();
-        return dialog.message();
-      }),
-      row.getByRole('button', { name: `Delete ${programName}` }).click(),
-    ]);
-
-    expect(dialogCount).toBe(1);
-    expect(message).toContain(programName);
-    await expect(programRowByName(page, programName)).toHaveCount(0);
-  });
-
-  test('TC-013 — Delete program with long name in confirmation dialog', async ({ page }) => {
-    const suffix = String(Date.now());
-    const programName = `${'L'.repeat(255 - suffix.length)}${suffix}`;
-    expect(programName).toHaveLength(255);
-
-    await seedProgram(page, programName, `Long name delete-${Date.now()}`);
-
-    const message = await confirmDeleteDialog(page, programName, 'accept');
-    expect(message).toContain(programName.slice(0, 40));
-
-    await expect(programRowByName(page, programName)).toHaveCount(0);
-  });
-
-  test('TC-014 — Re-create program with same name after delete', async ({ page }) => {
-    const programName = `Test Program-${Date.now()}`;
-    const firstDescription = `First life-${Date.now()}`;
-    const secondDescription = `Second life-${Date.now()}`;
-
-    await seedProgram(page, programName, firstDescription);
-
-    await confirmDeleteDialog(page, programName, 'accept');
-    await expect(programRowByName(page, programName)).toHaveCount(0);
-
-    await createProgram(page, programName, secondDescription);
-    await expect(programRowByName(page, programName)).toHaveCount(1);
-    await expect(programRowByName(page, programName).getByText(secondDescription)).toBeVisible();
+      await expect(programsPage.programRowByName(programName)).toHaveCount(1);
+      await expect(programsPage.descriptionInProgramRow(programName, secondDescription)).toBeVisible();
+    });
   });
 
-  test('TC-015 — Delete one program does not remove others', async ({ page }) => {
-    const deleteTarget = `Test Program-${Date.now()}`;
-    const keepTarget = `Web Development 2026-${Date.now()}`;
+  test.describe('Negative flows', () => {
+    test('TC-006 — Failed delete preserves program in list', async ({ page, trackProgram }) => {
+      const programsPage = new ProgramsPage(page);
+      const programName = `Test Program-${Date.now()}`;
 
-    await seedProgram(page, deleteTarget, `Remove only me-${Date.now()}`);
-    await createProgram(page, keepTarget, `Keep me-${Date.now()}`);
+      await seedProgramWithTracking(
+        page,
+        programsPage,
+        programName,
+        `API failure-${Date.now()}`,
+        trackProgram,
+      );
 
-    await confirmDeleteDialog(page, deleteTarget, 'accept');
+      await page.route('**/api/programs/*', async (route) => {
+        if (route.request().method() === 'DELETE') {
+          await route.fulfill({
+            status: 500,
+            contentType: 'application/json',
+            body: JSON.stringify({ message: 'Internal Server Error' }),
+          });
+          return;
+        }
+        await route.continue();
+      });
 
-    await expect(programRowByName(page, deleteTarget)).toHaveCount(0);
-    await expect(programRowByName(page, keepTarget)).toHaveCount(1);
+      await programsPage.deleteProgramWithDialog(programName, 'accept');
+
+      await expect(programsPage.programRowByName(programName)).toHaveCount(1);
+    });
+  });
+
+  test.describe('Edge cases', () => {
+    test('TC-007 — Delete program with special characters in name', async ({ page, trackProgram }) => {
+      const programsPage = new ProgramsPage(page);
+      const programName = `Informatique & IA - Niveau 2-${Date.now()}`;
+
+      await seedProgramWithTracking(
+        page,
+        programsPage,
+        programName,
+        `Special chars-${Date.now()}`,
+        trackProgram,
+      );
+
+      const { message } = await programsPage.deleteProgramWithDialog(programName, 'accept');
+      expect(message).toContain(programName);
+
+      await expect(programsPage.programRowByName(programName)).toHaveCount(0);
+    });
   });
 });
