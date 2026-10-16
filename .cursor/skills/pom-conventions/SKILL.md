@@ -23,6 +23,8 @@ Compose POMs when a page contains distinct components — e.g. ProgramsPage hold
 
 Import POMs at the top of each spec; instantiate with new XxxPage(page).
 
+Modal/component POMs expose a role-based `dialog` locator. For axe `.include()` scoping only, they may also expose `axeIncludeSelector()` — no axe scans or `expect` calls in POMs (see [a11y-checks](../a11y-checks/SKILL.md)).
+
 ## Output
 
-Page Object files in pages/. Tests in tests/ that import them.
+Page Object files in pages/. Tests in tests/ that import them. Accessibility: dedicated `tests/<feature>.a11y.spec.ts` per [a11y-checks](../a11y-checks/SKILL.md).

@@ -4,6 +4,7 @@ import {
   expectNewProgramModalClosed,
   expectProgramsPageReady,
 } from './support/programs-flow.helpers';
+import { runWithNativeDialogWatcher } from './support/browser.helpers';
 
 test.describe('Positive flows', () => {
   test.beforeEach(async ({ page }) => {
@@ -115,8 +116,8 @@ test.describe('Negative flows', () => {
     const countBefore = await programsPage.programRowByName(programName).count();
 
     await programsPage.attemptCreateProgram(programName, `Failed duplicate-${Date.now()}`);
-    await page.reload();
-    await expect(programsPage.heading).toBeVisible();
+    await programsPage.reload();
+    await expectProgramsPageReady(programsPage);
 
     await expect(programsPage.programRowByName(programName)).toHaveCount(countBefore);
   });
@@ -211,13 +212,10 @@ test.describe('Edge cases', () => {
   test('TC-015 — HTML or script-like strings are handled safely', async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Test <b>Name</b>-${Date.now()}`;
-    let dialogShown = false;
-    page.on('dialog', () => {
-      dialogShown = true;
+    const dialogShown = await runWithNativeDialogWatcher(page, async () => {
+      await programsPage.createProgram(programName, `Safe display check-${Date.now()}`);
+      await expectNewProgramModalClosed(programsPage);
     });
-
-    await programsPage.createProgram(programName, `Safe display check-${Date.now()}`);
-    await expectNewProgramModalClosed(programsPage);
 
     expect(dialogShown).toBe(false);
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
@@ -232,21 +230,8 @@ test.describe('Edge cases', () => {
     await programsPage.newProgramModal.fillProgramName(programName);
     await programsPage.newProgramModal.fillDescription(`Tab name check-${Date.now()}`);
 
-    const disabled = await programsPage.newProgramModal.createButton.isDisabled();
-    if (!disabled) {
-      await programsPage.newProgramModal.clickCreate();
-      await page.waitForTimeout(2_000);
-    }
-
-    const normalizedVisible =
-      (await programsPage.programRowByName(programName).count()) > 0 ||
-      (await programsPage.programRowByName(programName.replace('\t', ' ')).count()) > 0;
-
-    expect(
-      disabled ||
-        normalizedVisible ||
-        (await programsPage.newProgramModal.heading.isVisible()),
-    ).toBeTruthy();
+    await programsPage.trySubmitNewProgramForm();
+    await expect(programsPage.tabCharacterNameOutcomeIndicator(programName)).toBeVisible();
   });
 
   test('TC-017 — Same name allowed after original program deleted (if delete exists)', async ({

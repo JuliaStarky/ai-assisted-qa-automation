@@ -5,6 +5,7 @@ import {
   expectNewProgramModalClosed,
   expectProgramsPageReady,
   isCreateProgramPost,
+  mockProgramsPostUnauthorized,
   trackProgramFromCreateResponse,
 } from './support/programs-flow.helpers';
 
@@ -128,28 +129,12 @@ test.describe('Negative flows', () => {
     await programsPage.newProgramModal.fillProgramName(programName);
     await programsPage.newProgramModal.fillDescription(`Valid description-${Date.now()}`);
 
-    await page.route('**/api/programs', async (route) => {
-      if (route.request().method() === 'POST') {
-        await route.fulfill({
-          status: 401,
-          contentType: 'application/json',
-          body: JSON.stringify({ message: 'Unauthorized' }),
-        });
-        return;
-      }
-      await route.continue();
-    });
+    await mockProgramsPostUnauthorized(page);
 
     await programsPage.newProgramModal.clickCreate();
 
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
-
-    const redirectedToLogin = page.url().includes('/login');
-    const signInVisible = await programsPage.signInButton.isVisible().catch(() => false);
-    const authMessageVisible = await programsPage.sessionExpiredMessage.isVisible().catch(() => false);
-    const modalStillOpen = await programsPage.newProgramModal.heading.isVisible();
-
-    expect(redirectedToLogin || signInVisible || authMessageVisible || modalStillOpen).toBeTruthy();
+    await expect(programsPage.createSessionExpiredFeedback()).toBeVisible();
   });
 });
 
@@ -186,17 +171,9 @@ test.describe('Edge cases', () => {
     await programsPage.newProgramModal.fillProgramName(programName);
     await programsPage.newProgramModal.fillDescription(`Over max length-${Date.now()}`);
 
-    const createDisabled = await programsPage.newProgramModal.createButton.isDisabled();
-    if (!createDisabled) {
-      await programsPage.newProgramModal.clickCreate();
-    }
-
-    const maxLengthMessageVisible = await programsPage.maxLengthError.isVisible().catch(() => false);
-    const modalStillOpen = await programsPage.newProgramModal.heading.isVisible();
-    const blocked = createDisabled || maxLengthMessageVisible || modalStillOpen;
-
-    expect(blocked).toBeTruthy();
+    await programsPage.trySubmitNewProgramForm();
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
+    await expect(programsPage.overlongProgramNameBlockedIndicator()).toBeVisible();
   });
 
   test('TC-012 — Special characters in program name and description', async ({ page, trackProgram }) => {

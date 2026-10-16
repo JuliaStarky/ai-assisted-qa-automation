@@ -16,6 +16,7 @@ import fs from 'fs';
 import path from 'path';
 import { test, expect, type Page, type Request } from '@playwright/test';
 import { goToPrograms } from '../../fixtures/didaxis.helpers';
+import { expectProgramsPageReady } from '../support/programs-flow.helpers';
 import {
   deleteProgramById,
   fetchProgramIds,
@@ -39,7 +40,8 @@ async function resolveBearerToken(page: Page): Promise<string> {
   };
 
   page.on('request', captureAuth);
-  await goToPrograms(page);
+  const programsPage = await goToPrograms(page);
+  await expectProgramsPageReady(programsPage);
   page.off('request', captureAuth);
 
   if (!sessionToken) {

@@ -16,6 +16,48 @@ export async function mockEmptyProgramList(page: Page) {
   });
 }
 
+export async function mockProgramsPostUnauthorized(page: Page) {
+  await page.route('**/api/programs', async (route) => {
+    if (route.request().method() === 'POST') {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Unauthorized' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
+export async function mockProgramPatchUnauthorized(page: Page) {
+  await page.route('**/api/programs/*', async (route) => {
+    if (route.request().method() === 'PATCH') {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Unauthorized' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
+export async function mockProgramDeleteServerError(page: Page) {
+  await page.route('**/api/programs/*', async (route) => {
+    if (route.request().method() === 'DELETE') {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Internal Server Error' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
 export function isCreateProgramPost(url: string, method: string) {
   return url.includes('/api/programs') && method === 'POST';
 }

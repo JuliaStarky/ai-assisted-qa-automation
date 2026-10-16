@@ -4,6 +4,7 @@ import {
   createProgramWithTracking,
   expectNewProgramModalClosed,
   expectProgramsPageReady,
+  mockProgramDeleteServerError,
   seedProgramWithTracking,
 } from './support/programs-flow.helpers';
 
@@ -120,17 +121,7 @@ test.describe('DS-4 Delete program with confirmation', () => {
         trackProgram,
       );
 
-      await page.route('**/api/programs/*', async (route) => {
-        if (route.request().method() === 'DELETE') {
-          await route.fulfill({
-            status: 500,
-            contentType: 'application/json',
-            body: JSON.stringify({ message: 'Internal Server Error' }),
-          });
-          return;
-        }
-        await route.continue();
-      });
+      await mockProgramDeleteServerError(page);
 
       await programsPage.deleteProgramWithDialog(programName, 'accept');
 

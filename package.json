@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:a11y": "playwright test --project=chromium .a11y.spec.ts",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:manual:programs": "playwright test --config=playwright.manual.config.ts programs-bulk-cleanup.spec.ts",
@@ -23,6 +24,7 @@
   },
   "homepage": "https://github.com/JuliaStarky/ai-assisted-qa-automation#readme",
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.2",
     "typescript": "^7.0.2"

@@ -4,6 +4,7 @@ import {
   expectEditProgramModalClosed,
   expectNewProgramModalClosed,
   expectProgramsPageReady,
+  mockProgramPatchUnauthorized,
   seedProgram,
 } from './support/programs-flow.helpers';
 
@@ -184,29 +185,13 @@ test.describe('Negative flows', () => {
     await programsPage.openEditProgram(programName);
     await programsPage.editProgramModal.fillDescription(newDescription);
 
-    await page.route('**/api/programs/*', async (route) => {
-      if (route.request().method() === 'PATCH') {
-        await route.fulfill({
-          status: 401,
-          contentType: 'application/json',
-          body: JSON.stringify({ message: 'Unauthorized' }),
-        });
-        return;
-      }
-      await route.continue();
-    });
+    await mockProgramPatchUnauthorized(page);
 
     await programsPage.editProgramModal.clickSave();
 
     await expect(programsPage.descriptionInProgramRow(programName, newDescription)).toHaveCount(0);
     await expect(programsPage.descriptionInProgramRow(programName, originalDescription)).toBeVisible();
-
-    const redirectedToLogin = page.url().includes('/login');
-    const signInVisible = await programsPage.signInButton.isVisible().catch(() => false);
-    const authMessageVisible = await programsPage.sessionExpiredMessage.isVisible().catch(() => false);
-    const modalStillOpen = await programsPage.editProgramModal.heading.isVisible();
-
-    expect(redirectedToLogin || signInVisible || authMessageVisible || modalStillOpen).toBeTruthy();
+    await expect(programsPage.editSessionExpiredFeedback()).toBeVisible();
   });
 
   test('TC-011 — Save with no changes does not corrupt data', async ({ page }) => {

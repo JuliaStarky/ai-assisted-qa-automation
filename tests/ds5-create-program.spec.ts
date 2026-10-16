@@ -26,9 +26,9 @@ test.describe('DS-5 Program list display', () => {
       await createProgramWithTracking(page, programsPage, secondName, secondDesc, trackProgram);
 
       await expect(programsPage.programNameInRow(firstName)).toBeVisible();
-      await expect(programsPage.descriptionInProgramRowFirst(firstName, firstDesc)).toBeVisible();
+      await expect(programsPage.descriptionInProgramRow(firstName, firstDesc)).toBeVisible();
       await expect(programsPage.programNameInRow(secondName)).toBeVisible();
-      await expect(programsPage.descriptionInProgramRowFirst(secondName, secondDesc)).toBeVisible();
+      await expect(programsPage.descriptionInProgramRow(secondName, secondDesc)).toBeVisible();
     });
 
     test('TC-002 — Empty state message and create-first-program prompt', async ({ page }) => {
@@ -61,7 +61,7 @@ test.describe('DS-5 Program list display', () => {
 
       await expect(programsPage.programNameInRow(existingName)).toBeVisible();
       await expect(programsPage.programNameInRow(newName)).toBeVisible();
-      await expect(programsPage.descriptionInProgramRowFirst(newName, newDesc)).toBeVisible();
+      await expect(programsPage.descriptionInProgramRow(newName, newDesc)).toBeVisible();
     });
 
     test('TC-004 — Programs page shows expected page chrome', async ({ page }) => {
@@ -101,7 +101,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.programRowByName(deleteTarget)).toHaveCount(0);
 
       await expect(programsPage.programNameInRow(keepTarget)).toBeVisible();
-      await expect(programsPage.descriptionInProgramRowFirst(keepTarget, keepDesc)).toBeVisible();
+      await expect(programsPage.descriptionInProgramRow(keepTarget, keepDesc)).toBeVisible();
     });
   });
 
@@ -114,7 +114,7 @@ test.describe('DS-5 Program list display', () => {
       await seedProgramWithTracking(page, programsPage, programName, description, trackProgram);
 
       await expect(programsPage.programNameInRow(programName)).toBeVisible();
-      await expect(programsPage.descriptionInProgramRowFirst(programName, description)).toBeVisible();
+      await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
     test('TC-008 — Duplicate display names remain distinguishable by description', async ({

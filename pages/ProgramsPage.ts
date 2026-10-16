@@ -37,8 +37,29 @@ export class ProgramsPage {
     }
   }
 
+  async reload() {
+    await this.page.reload();
+  }
+
   async openNewProgramForm() {
     await this.newProgramButton.click();
+  }
+
+  async tabToNewProgramButton(maxTabs = 40) {
+    for (let i = 0; i < maxTabs; i++) {
+      const focused = await this.newProgramButton.evaluate(
+        (button) => button === document.activeElement,
+      );
+      if (focused) {
+        return;
+      }
+      await this.page.keyboard.press('Tab');
+    }
+    throw new Error(`Could not reach "+ New Program" via keyboard within ${maxTabs} Tab presses`);
+  }
+
+  async activateFocusedControlWithKeyboard() {
+    await this.page.keyboard.press('Enter');
   }
 
   programRowByName(name: string): Locator {
@@ -47,8 +68,12 @@ export class ProgramsPage {
     });
   }
 
-  programRowFirst(name: string): Locator {
-    return this.programRowByName(name).first();
+  programRowByNameAndDescription(name: string, description: string): Locator {
+    return this.page.getByRole('row').filter({
+      has: this.page.getByText(name, { exact: true }),
+    }).filter({
+      has: this.page.getByText(description),
+    });
   }
 
   programListRows(): Locator {
@@ -65,20 +90,41 @@ export class ProgramsPage {
     return this.programRowByName(programName).getByRole('button', { name: `Delete ${programName}` });
   }
 
-  programNameInRow(programName: string): Locator {
-    return this.programRowFirst(programName).getByText(programName, { exact: true });
+  programNameInRow(programName: string, description?: string): Locator {
+    const row = description
+      ? this.programRowByNameAndDescription(programName, description)
+      : this.programRowByName(programName);
+    return row.getByText(programName, { exact: true });
   }
 
   descriptionInProgramRow(programName: string, description: string): Locator {
-    return this.programRowByName(programName).getByText(description);
-  }
-
-  descriptionInProgramRowFirst(programName: string, description: string): Locator {
-    return this.programRowFirst(programName).getByText(description);
+    return this.programRowByNameAndDescription(programName, description).getByText(description);
   }
 
   visibleText(text: string): Locator {
     return this.page.getByText(text);
+  }
+
+  createSessionExpiredFeedback(): Locator {
+    return this.signInButton.or(this.sessionExpiredMessage).or(this.newProgramModal.heading);
+  }
+
+  editSessionExpiredFeedback(): Locator {
+    return this.signInButton.or(this.sessionExpiredMessage).or(this.editProgramModal.heading);
+  }
+
+  overlongProgramNameBlockedIndicator(): Locator {
+    return this.maxLengthError
+      .or(this.newProgramModal.heading)
+      .or(this.page.getByRole('button', { name: 'Create', exact: true, disabled: true }));
+  }
+
+  tabCharacterNameOutcomeIndicator(programName: string): Locator {
+    const spacedName = programName.replace('\t', ' ');
+    return this.programRowByName(programName)
+      .or(this.programRowByName(spacedName))
+      .or(this.newProgramModal.heading)
+      .or(this.page.getByRole('button', { name: 'Create', exact: true, disabled: true }));
   }
 
   async createProgram(name: string, description: string) {
@@ -86,6 +132,13 @@ export class ProgramsPage {
     await this.newProgramModal.fillProgramName(name);
     await this.newProgramModal.fillDescription(description);
     await this.newProgramModal.clickCreate();
+  }
+
+  async trySubmitNewProgramForm() {
+    const createButton = this.newProgramModal.createButton;
+    if (await createButton.isEnabled()) {
+      await createButton.click();
+    }
   }
 
   async attemptCreateProgram(
@@ -99,7 +152,6 @@ export class ProgramsPage {
       return { submitted: false };
     }
     await this.newProgramModal.clickCreate();
-    await this.page.waitForTimeout(2_000);
     return { submitted: true };
   }
 
@@ -111,7 +163,7 @@ export class ProgramsPage {
     programName: string,
     action: 'accept' | 'dismiss',
   ): Promise<{ message: string; type: string }> {
-    const row = this.programRowFirst(programName);
+    const row = this.programRowByName(programName);
     await row.scrollIntoViewIfNeeded();
 
     const [dialogResult] = await Promise.all([
