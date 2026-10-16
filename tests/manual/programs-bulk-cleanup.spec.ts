@@ -10,11 +10,12 @@
  * Delete all programs returned by GET:
  *   PROGRAMS_DELETE_ALL=1 npm run test:manual:programs
  *
- * Auth: DIDAXIS_API_TOKEN, or DIDAXIS_EMAIL + DIDAXIS_PASSWORD (login + captured Bearer).
+ * Auth: DIDAXIS_API_TOKEN, or saved storageState from auth setup (Bearer captured on /programs).
  */
 import fs from 'fs';
 import path from 'path';
 import { test, expect, type Page, type Request } from '@playwright/test';
+import { goToPrograms } from '../../fixtures/didaxis.helpers';
 import {
   deleteProgramById,
   fetchProgramIds,
@@ -22,16 +23,6 @@ import {
 } from './lib/programs-api';
 
 const baseUrl = programsApiBaseUrl();
-const loginUrl = `${baseUrl}/login`;
-
-function adminCredentials(): { email: string; password: string } {
-  const email = process.env.DIDAXIS_EMAIL;
-  const password = process.env.DIDAXIS_PASSWORD;
-  if (!email || !password) {
-    throw new Error('Set DIDAXIS_EMAIL and DIDAXIS_PASSWORD in .env (or DIDAXIS_API_TOKEN)');
-  }
-  return { email, password };
-}
 
 async function resolveBearerToken(page: Page): Promise<string> {
   const envToken = process.env.DIDAXIS_API_TOKEN;
@@ -48,18 +39,13 @@ async function resolveBearerToken(page: Page): Promise<string> {
   };
 
   page.on('request', captureAuth);
-  const { email, password } = adminCredentials();
-  await page.goto(loginUrl);
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20_000 });
-  await page.goto(`${baseUrl}/programs`);
-  await expect(page.getByRole('heading', { name: 'Programs' })).toBeVisible({ timeout: 20_000 });
+  await goToPrograms(page);
   page.off('request', captureAuth);
 
   if (!sessionToken) {
-    throw new Error('No Bearer token captured after login. Set DIDAXIS_API_TOKEN or retry login.');
+    throw new Error(
+      'No Bearer token captured on /programs. Run auth setup (npm test -- --project=setup) or set DIDAXIS_API_TOKEN.',
+    );
   }
   return sessionToken;
 }

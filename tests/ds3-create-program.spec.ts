@@ -1,34 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
-
-const baseUrl = process.env.DIDAXIS_URL ?? 'https://test.didaxis.studio';
-const loginUrl = `${baseUrl}/login`;
-const programsUrl = `${baseUrl}/programs`;
+import { goToPrograms } from '../fixtures/didaxis.helpers';
 
 const duplicateErrorPattern = /duplicate|already exists|unique|name already/i;
-
-function adminCredentials(): { email: string; password: string } {
-  const email = process.env.DIDAXIS_EMAIL;
-  const password = process.env.DIDAXIS_PASSWORD;
-  if (!email || !password) {
-    throw new Error('Set DIDAXIS_EMAIL and DIDAXIS_PASSWORD in .env');
-  }
-  return { email, password };
-}
-
-async function loginAsAdmin(page: Page) {
-  const { email, password } = adminCredentials();
-  await page.goto(loginUrl);
-  await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 20_000 });
-}
-
-async function goToPrograms(page: Page) {
-  await page.goto(programsUrl);
-  await expect(page.getByRole('heading', { name: 'Programs' })).toBeVisible();
-  await expect(page.getByRole('button', { name: '+ New Program' })).toBeVisible();
-}
 
 /** Mantine create panel — scope labels to this section (list rows also mention "Description"). */
 function newProgramModal(page: Page) {
@@ -90,7 +63,6 @@ async function openEditForProgram(page: Page, programName: string) {
 
 test.describe('Positive flows', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
     await goToPrograms(page);
   });
 
@@ -122,7 +94,6 @@ test.describe('Positive flows', () => {
 
 test.describe('Negative flows', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
     await goToPrograms(page);
   });
 
@@ -209,7 +180,6 @@ test.describe('Negative flows', () => {
 
 test.describe('Edge cases', () => {
   test.beforeEach(async ({ page }) => {
-    await loginAsAdmin(page);
     await goToPrograms(page);
   });
 

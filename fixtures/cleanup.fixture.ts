@@ -1,6 +1,5 @@
 import { test as base, expect, type Request } from '@playwright/test';
-
-const baseUrl = process.env.DIDAXIS_URL ?? 'https://test.didaxis.studio';
+import { baseUrl } from './didaxis.helpers';
 
 const programsToDelete = new Set<string>();
 let sessionBearerToken: string | undefined;
