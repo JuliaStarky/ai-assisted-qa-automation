@@ -7,7 +7,7 @@ import {
   seedProgramWithTracking,
 } from './support/programs-flow.helpers';
 
-test.describe('DS-5 Program list display', () => {
+test.describe('DS-5 Program list filtering and display', () => {
   test.describe('Positive flows', () => {
     test.beforeEach(async ({ page }) => {
       const programsPage = new ProgramsPage(page);
