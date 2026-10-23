@@ -23,7 +23,10 @@ export class ProgramsPage {
     this.editProgramModal = new EditProgramModal(page);
     this.signInButton = page.getByRole('button', { name: 'Sign In' });
     this.duplicateNameError = page.getByText(/duplicate|already exists|unique|name already/i);
-    this.maxLengthError = page.getByText(/max(imum)? length|too long|characters/i);
+    // Avoid /max(imum)? length/ — it matches the TC-011 fixture text "Over max length".
+    this.maxLengthError = this.newProgramModal.dialog.getByText(
+      /maximum length|too long|character limit|must be at most/i,
+    );
     this.sessionExpiredMessage = page.getByText(/unauthorized|log in again|session expired/i);
     this.emptyStateMessage = page.getByText(/No programs yet|no programs have been created/i);
     this.loadErrorMessage = page.getByText(/error|failed|retry|unable to load/i);
