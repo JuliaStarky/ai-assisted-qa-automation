@@ -13,8 +13,12 @@ export class ProgramsPage {
   readonly maxLengthError: Locator;
   readonly sessionExpiredMessage: Locator;
   readonly emptyStateMessage: Locator;
+  readonly exactEmptyStateMessage: Locator;
+  readonly emptyStateCreateProgramButton: Locator;
+  readonly subtitle: Locator;
   readonly loadErrorMessage: Locator;
   readonly programNameColumnLabel: Locator;
+  readonly programTableColumnHeader: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
@@ -29,8 +33,15 @@ export class ProgramsPage {
     );
     this.sessionExpiredMessage = page.getByText(/unauthorized|log in again|session expired/i);
     this.emptyStateMessage = page.getByText(/No programs yet|no programs have been created/i);
+    this.exactEmptyStateMessage = page.getByText(
+      'No programs yet. Create your first program to get started.',
+      { exact: true },
+    );
+    this.emptyStateCreateProgramButton = page.getByRole('button', { name: 'Create Program' });
+    this.subtitle = page.getByText('Manage academic programs and semesters');
     this.loadErrorMessage = page.getByText(/error|failed|retry|unable to load/i);
     this.programNameColumnLabel = page.getByText('Program', { exact: true });
+    this.programTableColumnHeader = page.getByRole('columnheader', { name: 'Program' });
   }
 
   async goto(options?: { waitForNetworkIdle?: boolean }) {
@@ -46,6 +57,33 @@ export class ProgramsPage {
 
   async openNewProgramForm() {
     await this.newProgramButton.click();
+  }
+
+  async openCreateProgramFromEmptyState() {
+    await this.emptyStateCreateProgramButton.click();
+  }
+
+  firstProgramListRow(): Locator {
+    return this.programListRows().nth(0);
+  }
+
+  async scrollProgramRowIntoView(programName: string) {
+    await this.programRowByName(programName).scrollIntoViewIfNeeded();
+  }
+
+  async programRowBoundingBox(programName: string) {
+    return this.programRowByName(programName).boundingBox();
+  }
+
+  injectedImageInProgramRow(programName: string, description: string): Locator {
+    return this.programRowByName(programName)
+      .getByRole('cell')
+      .filter({ hasText: description })
+      .getByRole('img');
+  }
+
+  textInProgramRow(programName: string, text: string): Locator {
+    return this.programRowByName(programName).getByText(text);
   }
 
   async tabToNewProgramButton(maxTabs = 40) {

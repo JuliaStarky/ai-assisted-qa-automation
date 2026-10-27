@@ -1,0 +1,33 @@
+---
+description: How this project writes Playwright tests — auth, POM, locators, cleanup, data.
+globs: tests/**
+alwaysApply: false
+---
+
+# Playwright Conventions
+
+## Auth
+
+Default: reuse stored session (`playwright/.auth/user.json`) via `storageState` in `playwright.config.ts`. Run the `setup` project (`tests/auth.setup.ts`) when creds or session expire.
+
+Use UI login in specs only for login-page behavior (e.g. invalid credentials, session expiry). Never duplicate full sign-in in every test.
+
+Credentials: `DIDAXIS_EMAIL` / `DIDAXIS_PASSWORD` in `.env`. API cleanup may use `DIDAXIS_API_TOKEN` or Bearer captured from authenticated requests.
+
+## Page Objects (pom-conventions)
+
+One POM per page or distinct component in `pages/`. Locators as `readonly` fields in the constructor; user-action methods only — no `expect(...)` in POMs.
+
+Tests import POMs and describe intent; assertions live in `tests/*.spec.ts`. Compose component POMs (e.g. modal on a list page) instead of duplicating locators.
+
+## Locators
+
+Priority: `getByRole` → `getByLabel` / `getByPlaceholder` → `getByText` → `getByTestId` (comment why if used). Never CSS, XPath, or exact brittle strings.
+
+If a locator matches multiple nodes, use `.filter({ hasText: ... })` — not `.first()`. Prefer web-first `expect(locator).toBeVisible()` over `waitForTimeout`.
+
+## Data & cleanup (api-cleanup)
+
+Unique names with `Date.now()` (or equivalent) so parallel runs do not collide.
+
+When a test creates a program (or other persistent record), import `test` from `fixtures/cleanup.fixture.ts`, call `trackProgram(uuid)` right after create, and let the fixture DELETE via API — no manual `afterAll` cleanup. Only delete data the test created; never hardcode tokens.

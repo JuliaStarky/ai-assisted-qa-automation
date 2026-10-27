@@ -9,21 +9,51 @@ Generate reviewable test scenarios from a Jira ticket. The Gherkin output is a h
 
 ## Steps
 
-Read the referenced Jira ticket using the Atlassian MCP. Extract the title, description, and every acceptance criterion.
+### 1. Read the Jira ticket
 
-Generate test scenarios as a Gherkin .feature file:
+Using the Atlassian MCP, extract the title, description, and every acceptance criterion (see **Jira access** below).
+
+### 2. Live UI recon
+
+When `DIDAXIS_EMAIL` and `DIDAXIS_PASSWORD` are available (e.g. in `.env`), exercise the real app for the flows the ticket describes **before** writing final scenarios.
+
+**Environment:** `DIDAXIS_URL` if set; otherwise `https://test.didaxis.studio` (same default as `fixtures/didaxis.helpers.ts`).
+
+**Tool chain (use the first option that works; note which one in the UI recon block):**
+
+1. **Playwright MCP** — `project-0-ai-assisted-qa-automation-playwright` (inspect with `GetDynamicTools`; skip if the namespace is missing or needs auth)
+2. **Browser MCP** — `cursor-ide-browser` (`browser_navigate` → `browser_lock` → interact → `browser_snapshot` → unlock)
+3. **agent-browser CLI** — shell-driven navigation/snapshots when neither MCP is available (`agent-browser` on PATH)
+4. **Playwright CLI** — headed exploration from the repo root, e.g. `npx playwright open "$DIDAXIS_URL"` or `npx playwright codegen "$DIDAXIS_URL/login"` (load `.env` so URL and creds apply)
+
+Do not skip recon when creds exist unless the user explicitly asks for Jira-only planning.
+
+**Recon checklist:**
+
+- Sign in as admin (email/password fields → submit; confirm post-login landing).
+- Navigate to every page, control, or flow mentioned in the ACs; use snapshots to capture structure and labels.
+- Record URL after each navigation, visible headings, card/link/button labels, and whether actions succeed or fail.
+- Note locator-friendly hints for automation (`getByRole('link', { name: '…' })`, headings, etc.) — no CSS/XPath.
+- Compare observations to Jira: if the app behaves differently from ACs, reflect reality in scenarios and call it out under ambiguities or as a suspected defect.
+
+**If creds are missing:** skip live recon. Still produce Gherkin from Jira; the UI recon block must say recon was skipped and why.
+
+### 3. Generate Gherkin
+
+Write scenarios informed by **both** Jira and recon (when run):
 
 - One Feature, named after the ticket
 - Cover every acceptance criterion with at least one Scenario
 - Add negative scenarios — what should NOT happen
 - Add edge-case scenarios — boundaries, empty inputs, duplicates, special characters, max length
-- Write each scenario in Given / When / Then form. Given sets the starting state, When is the action under test, Then is the observable expected outcome.
+- Given / When / Then: Given = starting state, When = action, Then = observable outcome
+- Group with comments: `# Happy paths`, `# Negative`, `# Edge cases`
+- Use real, specific values from the ticket and recon — never placeholders
 
-Group scenarios with comments: `# Happy paths`, `# Negative`, `# Edge cases`.
+**Comment blocks at end of file (in this order):**
 
-Use real, specific values from the ticket — never placeholders.
-
-End the file with a comment block listing any ambiguities or gaps found in the ticket's acceptance criteria, so the QA can resolve them.
+1. `# UI recon (<ISO date>)` — bullets: env URL, login result, routes tested, labels seen, broken behavior, locator hints; or one line that recon was skipped
+2. `# Ambiguities and gaps` — ticket gaps, recon vs AC mismatches, open questions for QA
 
 ## Output
 
@@ -35,4 +65,4 @@ Save as `features/<ticket-key>.feature`.
 - Call `getAccessibleAtlassianResources` once if needed for `cloudId`, then `getJiraIssue`.
 - Request summary and description; include acceptance-criteria custom fields when the site exposes them. If ACs are only in the description, extract numbered or bulleted criteria from that text.
 
-After saving, report the file path and scenario counts by group (happy / negative / edge).
+After saving, report the file path, scenario counts by group (happy / negative / edge), and whether UI recon ran or was skipped.

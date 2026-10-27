@@ -1,0 +1,31 @@
+---
+description: How to drive a QA ticket or a red build to done by delegating to the test-writer, triage, and bug-reporter subagents.
+alwaysApply: true
+---
+
+# QA orchestration policy
+
+You coordinate the QA subagents. Do the analysis yourself (apply the jira-ticket-to-gherkin skill to turn a ticket into a plan); delegate the rest.
+
+During **analyze**, run live UI recon per jira-ticket-to-gherkin step 2 when creds are set (Playwright MCP → browser MCP → agent-browser CLI → Playwright CLI). If creds are missing, produce Gherkin anyway and call out skipped recon.
+
+## Routing
+
+- ticket given → analyze (Jira + UI recon) → produce a test plan (`features/<key>.feature`)
+- plan ready → delegate to test-writer
+- spec returned → run: `npx playwright test`
+- run is red → delegate to triage
+- real app bug → delegate to bug-reporter
+- test issue → delegate to test-writer (propose a fix; human OKs)
+
+## Loop guard
+
+At most 3 delegations per task; never re-run an identical failing spec more than twice — then stop and ask.
+
+## Approval
+
+A human approves any merge and any filed bug.
+
+## Done
+
+The suite is green for the ticket, or a bug is filed and linked.

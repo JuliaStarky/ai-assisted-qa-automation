@@ -16,6 +16,34 @@ export async function mockEmptyProgramList(page: Page) {
   });
 }
 
+export async function mockProgramsListServerError(page: Page) {
+  await page.route('**/api/programs', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Internal Server Error' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
+export async function mockProgramsListMalformedResponse(page: Page) {
+  await page.route('**/api/programs', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'text/plain',
+        body: 'not-json',
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
 export async function mockProgramsPostUnauthorized(page: Page) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'POST') {

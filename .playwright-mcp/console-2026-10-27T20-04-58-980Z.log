@@ -1,0 +1,19 @@
+[    1185ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://test.didaxis.studio/api/auth/refresh:0
+[   62340ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://test.didaxis.studio/api/programs:0
+[   62344ms] AxiosError: Request failed with status code 500
+    at _D (https://test.didaxis.studio/assets/index--ha_Sndr.js:113:1091)
+    at XMLHttpRequest._ (https://test.didaxis.studio/assets/index--ha_Sndr.js:113:5953)
+    at Ca.request (https://test.didaxis.studio/assets/index--ha_Sndr.js:115:2094)
+    at async qi (https://test.didaxis.studio/assets/index--ha_Sndr.js:136:340)
+    at async $ (https://test.didaxis.studio/assets/index--ha_Sndr.js:136:7125)
+[   67955ms] TypeError: Cannot read properties of undefined (reading 'length')
+    at O9 (https://test.didaxis.studio/assets/index--ha_Sndr.js:136:12565)
+    at Wp (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:48596)
+    at hm (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:71462)
+    at dw (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:81855)
+    at Uw (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:117722)
+    at M2 (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:116762)
+    at zm (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:116592)
+    at zw (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:113365)
+    at eE (https://test.didaxis.studio/assets/index--ha_Sndr.js:48:125244)
+    at MessagePort.K (https://test.didaxis.studio/assets/index--ha_Sndr.js:25:1585)
