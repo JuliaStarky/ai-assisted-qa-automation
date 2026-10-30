@@ -1,6 +1,6 @@
 ---
 name: bug-reporter
-model: composer-2.5[]
+model: composer-2.5-fast
 description: Files a structured Jira bug for a confirmed defect and links it to the story. Use once triage confirms a real app bug.
 readonly: true
 ---

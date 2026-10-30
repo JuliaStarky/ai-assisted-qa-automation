@@ -65,7 +65,7 @@ Copy and track:
 |---|---|
 | Product defect | Follow jira-bug-reporter. Include CI run id and artifact paths in the Bug description. |
 | Test issue | Draft a minimal patch (spec and/or POM). Do not merge; leave for review. |
-| Env / credentials / flake | Explain in the PR comment. Do not file a product Bug. |
+| Env / credentials / flake | Explain in the PR comment. Do not file a product Bug. A failure that passed on a CI retry is flake: `playwright.config.ts` retries twice on CI and zero times locally. Do not recommend `workers: 1` or retries above 2. |
 
 ## PR comment template
 

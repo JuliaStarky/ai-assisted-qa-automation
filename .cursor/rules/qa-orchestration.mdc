@@ -13,7 +13,7 @@ During **analyze**, run live UI recon per jira-ticket-to-gherkin step 2 when cre
 
 - ticket given → analyze (Jira + UI recon) → produce a test plan (`features/<key>.feature`)
 - plan ready → delegate to test-writer
-- spec returned → run: `npx playwright test`
+- spec returned → align `playwright.config.ts` with section 10 Anti-flake of `.cursor/rules/playwright-conventions.mdc` (`fullyParallel: true`, `retries: process.env.CI ? 2 : 0`, `baseURL` from `process.env.DIDAXIS_URL`, `trace: 'on-first-retry'`, `locale: 'en-CA'`, `timezoneId: 'America/Toronto'`, setup project plus `storageState` dependency unchanged). Do not raise retries above 2. Do not set `workers: 1`. Then run: `npx playwright test`
 - run is red → delegate to triage
 - real app bug → delegate to bug-reporter
 - test issue → delegate to test-writer (propose a fix; human OKs)
@@ -25,6 +25,23 @@ At most 3 delegations per task; never re-run an identical failing spec more than
 ## Approval
 
 A human approves any merge and any filed bug.
+
+## Guardrails
+
+- A human approves every merge and every filed bug — no subagent merges, and bug-reporter files only after a human confirms the defect.
+- No subagent edits application source.
+- Blast radius:
+  - **test-writer** — writes only under `tests/`, `pages/`, `fixtures/`; no commits or PRs unless asked.
+  - **triage** — read-only (`readonly: true`): reads CI runs, logs, and repo files; posts nothing and patches nothing.
+  - **bug-reporter** — read-only on the repo (`readonly: true`); its only write is one human-approved Jira bug linked to the story.
+
+## Guardrails
+
+- A human approves every merge and every filed bug.
+- No subagent edits application source.
+- **test-writer:** may write only under `tests/`, `pages/`, and `fixtures/`.
+- **triage:** read-only; diagnosis only — no edits, merges, or filed bugs.
+- **bug-reporter:** read-only on the repo; files a Jira bug only after human approval.
 
 ## Done
 

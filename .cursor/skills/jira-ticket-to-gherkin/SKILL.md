@@ -46,6 +46,7 @@ Write scenarios informed by **both** Jira and recon (when run):
 - Cover every acceptance criterion with at least one Scenario
 - Add negative scenarios — what should NOT happen
 - Add edge-case scenarios — boundaries, empty inputs, duplicates, special characters, max length
+- For a programs list, create, edit, or delete flow, add one scenario per deterministic API case: save returns 503, the list returns 200 with an empty list, the list returns 200 with a malformed body, and the list or save returns 401, 403, 404, 501, 502, or 300. Name the UI outcome (error state, empty state, or the page stays usable). Put the exact message in the Then step only when UI recon captured it. If recon shows nothing rendered, the scenario says that. Do not invent copy.
 - Given / When / Then: Given = starting state, When = action, Then = observable outcome
 - Group with comments: `# Happy paths`, `# Negative`, `# Edge cases`
 - Use real, specific values from the ticket and recon — never placeholders

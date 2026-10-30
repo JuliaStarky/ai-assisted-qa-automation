@@ -1,6 +1,6 @@
 ---
 name: triage
-model: grok-4.7[context=256k,reasoning_effort=medium,fast=true]
+model: claude-opus-5-5-high
 description: Diagnoses a red CI run against the repo and classifies the cause. Use whenever a build fails.
 readonly: true
 ---
