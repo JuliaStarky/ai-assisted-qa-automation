@@ -222,4 +222,10 @@ export class ProgramsPage {
 
     return dialogResult;
   }
+
+  async doubleClickDeleteButton(programName: string) {
+    const row = this.programRowByName(programName);
+    await row.scrollIntoViewIfNeeded();
+    await this.deleteButton(programName).dblclick();
+  }
 }

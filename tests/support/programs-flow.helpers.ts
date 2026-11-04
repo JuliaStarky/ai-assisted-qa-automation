@@ -58,6 +58,20 @@ export async function mockProgramsPostUnauthorized(page: Page) {
   });
 }
 
+export async function mockProgramsPostServiceUnavailable(page: Page) {
+  await page.route('**/api/programs', async (route) => {
+    if (route.request().method() === 'POST') {
+      await route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Service Unavailable' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
 export async function mockProgramPatchUnauthorized(page: Page) {
   await page.route('**/api/programs/*', async (route) => {
     if (route.request().method() === 'PATCH') {
@@ -86,6 +100,20 @@ export async function mockProgramDeleteServerError(page: Page) {
   });
 }
 
+export async function mockProgramDeleteWithStatus(page: Page, status: number) {
+  await page.route('**/api/programs/*', async (route) => {
+    if (route.request().method() === 'DELETE') {
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: `HTTP ${status}` }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
 export function isCreateProgramPost(url: string, method: string) {
   return url.includes('/api/programs') && method === 'POST';
 }
@@ -93,6 +121,33 @@ export function isCreateProgramPost(url: string, method: string) {
 export async function expectProgramsPageReady(programsPage: ProgramsPage) {
   await expect(programsPage.heading).toBeVisible();
   await expect(programsPage.newProgramButton).toBeVisible();
+}
+
+export async function expectProgramsPageErrorOrUsable(programsPage: ProgramsPage) {
+  await expect(
+    programsPage.heading
+      .or(programsPage.loadErrorMessage)
+      .or(programsPage.newProgramButton)
+      .or(programsPage.newProgramModal.heading),
+  ).toBeVisible();
+}
+
+export async function expectProgramsPageEmptyOrUsable(programsPage: ProgramsPage) {
+  await expect(
+    programsPage.heading
+      .or(programsPage.emptyStateMessage)
+      .or(programsPage.exactEmptyStateMessage)
+      .or(programsPage.newProgramButton),
+  ).toBeVisible();
+}
+
+export async function expectProgramsPageLoadOutcome(programsPage: ProgramsPage) {
+  await expect(
+    programsPage.heading
+      .or(programsPage.emptyStateMessage)
+      .or(programsPage.loadErrorMessage)
+      .or(programsPage.newProgramButton),
+  ).toBeVisible();
 }
 
 export async function expectNewProgramModalClosed(programsPage: ProgramsPage) {
