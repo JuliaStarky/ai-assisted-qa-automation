@@ -13,6 +13,7 @@ export class EditProgramModal {
   readonly showAiGenerationConfigButton: Locator;
   readonly saveButton: Locator;
   readonly cancelButton: Locator;
+  readonly duplicateNameError: Locator;
 
   constructor(page: Page) {
     this.dialog = page.getByRole('dialog').filter({
@@ -31,6 +32,7 @@ export class EditProgramModal {
     });
     this.saveButton = this.dialog.getByRole('button', { name: 'Save' });
     this.cancelButton = this.dialog.getByRole('button', { name: 'Cancel' });
+    this.duplicateNameError = this.dialog.getByText(/already exists|duplicate|unique|name already/i);
   }
 
   /** Maps the dialog root to an axe-core `.include()` selector (axe expects CSS, not Playwright locators). */

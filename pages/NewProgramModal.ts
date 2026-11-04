@@ -7,6 +7,7 @@ export class NewProgramModal {
   readonly descriptionField: Locator;
   readonly createButton: Locator;
   readonly cancelButton: Locator;
+  readonly duplicateNameError: Locator;
 
   constructor(page: Page) {
     this.dialog = page.getByRole('dialog').filter({
@@ -17,6 +18,7 @@ export class NewProgramModal {
     this.descriptionField = this.dialog.getByRole('textbox', { name: 'Description' });
     this.createButton = this.dialog.getByRole('button', { name: 'Create', exact: true });
     this.cancelButton = this.dialog.getByRole('button', { name: 'Cancel', exact: true });
+    this.duplicateNameError = this.dialog.getByText(/already exists|duplicate|unique|name already/i);
   }
 
   /** Maps the dialog root to an axe-core `.include()` selector (axe expects CSS, not Playwright locators). */
