@@ -73,17 +73,49 @@ export async function mockProgramPatchUnauthorized(page: Page) {
 }
 
 export async function mockProgramDeleteServerError(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 500);
+}
+
+export async function mockProgramDeleteHttpStatus(page: Page, status: number) {
   await page.route('**/api/programs/*', async (route) => {
     if (route.request().method() === 'DELETE') {
       await route.fulfill({
-        status: 500,
+        status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Internal Server Error' }),
+        body: JSON.stringify({ message: 'Delete request failed' }),
       });
       return;
     }
     await route.continue();
   });
+}
+
+export async function mockProgramDeleteServiceUnavailable(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 503);
+}
+
+export async function mockProgramDeleteUnauthorized(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 401);
+}
+
+export async function mockProgramDeleteForbidden(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 403);
+}
+
+export async function mockProgramDeleteNotFound(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 404);
+}
+
+export async function mockProgramDeleteNotImplemented(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 501);
+}
+
+export async function mockProgramDeleteBadGateway(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 502);
+}
+
+export async function mockProgramDeleteMultipleChoices(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 300);
 }
 
 export function isCreateProgramPost(url: string, method: string) {

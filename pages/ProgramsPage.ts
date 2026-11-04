@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import type { Dialog, Locator, Page } from '@playwright/test';
 import { programsUrl } from '../fixtures/didaxis.helpers';
 import { EditProgramModal } from './EditProgramModal';
 import { NewProgramModal } from './NewProgramModal';
@@ -221,5 +221,103 @@ export class ProgramsPage {
     ]);
 
     return dialogResult;
+  }
+
+  private async activateDeleteControl(
+    programName: string,
+    activation: 'singleClick' | 'doubleClick' | 'tripleClick',
+  ) {
+    await this.programRowByName(programName).scrollIntoViewIfNeeded();
+    const button = this.deleteButton(programName);
+    if (activation === 'singleClick') {
+      await button.click();
+      return;
+    }
+    if (activation === 'doubleClick') {
+      await button.dblclick();
+      return;
+    }
+    await button.click({ clickCount: 3 });
+  }
+
+  private async pollUntilDialogEventsQuiescent(
+    readCount: () => number,
+    minimumDialogs: number,
+    stableMs = 500,
+    timeoutMs = 8000,
+  ) {
+    const start = Date.now();
+    let lastCount = 0;
+    let stableSince = Date.now();
+
+    while (Date.now() - start < timeoutMs) {
+      const count = readCount();
+      if (count >= minimumDialogs) {
+        if (count !== lastCount) {
+          lastCount = count;
+          stableSince = Date.now();
+        } else if (Date.now() - stableSince >= stableMs) {
+          return;
+        }
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+
+  async recordDeleteConfirmationDialogs(
+    programName: string,
+    activation: 'singleClick' | 'doubleClick' | 'tripleClick',
+    resolveMode: 'dismiss-each' | 'accept-first-dismiss-rest',
+  ): Promise<{ dialogCount: number; messages: string[]; types: string[] }> {
+    const messages: string[] = [];
+    const types: string[] = [];
+    let handledCount = 0;
+
+    const handler = async (dialog: Dialog) => {
+      messages.push(dialog.message());
+      types.push(dialog.type());
+      handledCount += 1;
+      if (resolveMode === 'accept-first-dismiss-rest' && handledCount === 1) {
+        await dialog.accept();
+        return;
+      }
+      await dialog.dismiss();
+    };
+
+    this.page.on('dialog', handler);
+    try {
+      await this.activateDeleteControl(programName, activation);
+      await this.pollUntilDialogEventsQuiescent(() => messages.length, 1);
+    } finally {
+      this.page.off('dialog', handler);
+    }
+
+    return { dialogCount: messages.length, messages, types };
+  }
+
+  async doubleClickDeleteRecordDialogs(
+    programName: string,
+    resolveMode: 'dismiss-each' | 'accept-first-dismiss-rest',
+  ) {
+    return this.recordDeleteConfirmationDialogs(programName, 'doubleClick', resolveMode);
+  }
+
+  async singleClickDeleteRecordDialogs(programName: string) {
+    return this.recordDeleteConfirmationDialogs(programName, 'singleClick', 'dismiss-each');
+  }
+
+  async tripleClickDeleteRecordDialogs(programName: string) {
+    return this.recordDeleteConfirmationDialogs(programName, 'tripleClick', 'dismiss-each');
+  }
+
+  async waitForNoFurtherNativeDialog(graceMs = 750) {
+    try {
+      await this.page.waitForEvent('dialog', { timeout: graceMs });
+      throw new Error('Unexpected native dialog appeared');
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Unexpected native dialog appeared') {
+        throw error;
+      }
+    }
   }
 }
