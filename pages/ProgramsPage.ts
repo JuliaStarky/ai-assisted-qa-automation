@@ -2,6 +2,7 @@ import type { Locator, Page } from '@playwright/test';
 import { programsUrl } from '../fixtures/didaxis.helpers';
 import { EditProgramModal } from './EditProgramModal';
 import { NewProgramModal } from './NewProgramModal';
+import { NewSemesterModal } from './NewSemesterModal';
 
 export class ProgramsPage {
   readonly heading: Locator;
@@ -19,6 +20,10 @@ export class ProgramsPage {
   readonly loadErrorMessage: Locator;
   readonly programNameColumnLabel: Locator;
   readonly programTableColumnHeader: Locator;
+  readonly semestersPanelSubtitle: Locator;
+  readonly noSemestersMessage: Locator;
+  readonly addSemesterButton: Locator;
+  readonly newSemesterModal: NewSemesterModal;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
@@ -42,6 +47,26 @@ export class ProgramsPage {
     this.loadErrorMessage = page.getByText(/error|failed|retry|unable to load/i);
     this.programNameColumnLabel = page.getByText('Program', { exact: true });
     this.programTableColumnHeader = page.getByRole('columnheader', { name: 'Program' });
+    this.semestersPanelSubtitle = page.getByText('Semesters & scheduling config');
+    this.noSemestersMessage = page.getByText('No semesters yet', { exact: true });
+    this.addSemesterButton = page.getByRole('button', { name: '+ Semester' });
+    this.newSemesterModal = new NewSemesterModal(page);
+  }
+
+  selectedProgramHeading(programName: string): Locator {
+    return this.page.getByRole('heading', { level: 4, name: programName });
+  }
+
+  semesterNameInPanel(semesterName: string): Locator {
+    return this.page.getByText(semesterName, { exact: true });
+  }
+
+  async selectProgram(name: string) {
+    await this.programNameInRow(name).click();
+  }
+
+  async openNewSemesterForm() {
+    await this.addSemesterButton.click();
   }
 
   async goto(options?: { waitForNetworkIdle?: boolean }) {
