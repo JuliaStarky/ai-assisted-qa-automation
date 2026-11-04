@@ -44,18 +44,46 @@ export async function mockProgramsListMalformedResponse(page: Page) {
   });
 }
 
-export async function mockProgramsPostUnauthorized(page: Page) {
+async function mockProgramsPostStatus(page: Page, status: number) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'POST') {
       await route.fulfill({
-        status: 401,
+        status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Unauthorized' }),
+        body: JSON.stringify({ message: `HTTP ${status}` }),
       });
       return;
     }
     await route.continue();
   });
+}
+
+export async function mockProgramsPostServiceUnavailable(page: Page) {
+  await mockProgramsPostStatus(page, 503);
+}
+
+export async function mockProgramsPostUnauthorized(page: Page) {
+  await mockProgramsPostStatus(page, 401);
+}
+
+export async function mockProgramsPostForbidden(page: Page) {
+  await mockProgramsPostStatus(page, 403);
+}
+
+export async function mockProgramsPostNotFound(page: Page) {
+  await mockProgramsPostStatus(page, 404);
+}
+
+export async function mockProgramsPostNotImplemented(page: Page) {
+  await mockProgramsPostStatus(page, 501);
+}
+
+export async function mockProgramsPostBadGateway(page: Page) {
+  await mockProgramsPostStatus(page, 502);
+}
+
+export async function mockProgramsPostMultipleChoices(page: Page) {
+  await mockProgramsPostStatus(page, 300);
 }
 
 export async function mockProgramPatchUnauthorized(page: Page) {
