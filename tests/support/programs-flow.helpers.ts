@@ -16,11 +16,11 @@ export async function mockEmptyProgramList(page: Page) {
   });
 }
 
-export async function mockProgramsListServerError(page: Page) {
+export async function mockProgramsListStatus(page: Page, status: number) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'GET') {
       await route.fulfill({
-        status: 500,
+        status,
         contentType: 'application/json',
         body: JSON.stringify({ message: 'Internal Server Error' }),
       });
@@ -28,6 +28,16 @@ export async function mockProgramsListServerError(page: Page) {
     }
     await route.continue();
   });
+}
+
+export async function mockProgramsListServerError(page: Page) {
+  await mockProgramsListStatus(page, 500);
+}
+
+export function waitForProgramsListGet(page: Page) {
+  return page.waitForResponse(
+    (resp) => resp.url().includes('/api/programs') && resp.request().method() === 'GET',
+  );
 }
 
 export async function mockProgramsListMalformedResponse(page: Page) {
