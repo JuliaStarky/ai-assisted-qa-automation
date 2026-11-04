@@ -19,6 +19,7 @@ export class ProgramsPage {
   readonly loadErrorMessage: Locator;
   readonly programNameColumnLabel: Locator;
   readonly programTableColumnHeader: Locator;
+  readonly userVisibleErrorFeedback: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
@@ -42,6 +43,7 @@ export class ProgramsPage {
     this.loadErrorMessage = page.getByText(/error|failed|retry|unable to load/i);
     this.programNameColumnLabel = page.getByText('Program', { exact: true });
     this.programTableColumnHeader = page.getByRole('columnheader', { name: 'Program' });
+    this.userVisibleErrorFeedback = page.getByRole('alert').or(page.getByRole('status'));
   }
 
   async goto(options?: { waitForNetworkIdle?: boolean }) {
