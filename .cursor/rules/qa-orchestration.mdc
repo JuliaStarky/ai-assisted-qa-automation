@@ -1,5 +1,5 @@
 ---
-description: How to drive a QA ticket or a red build to done by delegating to the test-writer, triage, and bug-reporter subagents.
+description: How to drive a QA ticket, a backlog of tickets, or a red build to done by delegating to the test-writer, triage, and bug-reporter subagents.
 alwaysApply: true
 ---
 
@@ -9,40 +9,56 @@ You coordinate the QA subagents. Do the analysis yourself (apply the jira-ticket
 
 During **analyze**, run live UI recon per jira-ticket-to-gherkin step 2 when creds are set (Playwright MCP → browser MCP → agent-browser CLI → Playwright CLI). If creds are missing, produce Gherkin anyway and call out skipped recon.
 
+## Skills
+
+- **jira-ticket-to-gherkin** — a Jira ticket exists (DS-1, DS-2, …): turn its acceptance criteria into `features/<key>.feature`.
+- **explore-and-generate** — no ticket; the ask is coverage gaps ("what's missing", "expand coverage", "explore <page>"): crawl the live UI, diff against `tests/`, write `features/explore-<page-slug>.feature` for the single highest-value untested flow. Read-only on the app and on `tests/`, `pages/`, `fixtures/`. Never use it when a ticket exists.
+
 ## Routing
 
 - ticket given → analyze (Jira + UI recon) → produce a test plan (`features/<key>.feature`)
+- no ticket, coverage-gap ask → explore-and-generate → produce a test plan (`features/explore-<page-slug>.feature`) → human reviews the plan before it goes to test-writer
+- backlog run triggered → Backlog mode (below)
 - plan ready → delegate to test-writer
 - spec returned → align `playwright.config.ts` with section 10 Anti-flake of `.cursor/rules/playwright-conventions.mdc` (`fullyParallel: true`, `retries: process.env.CI ? 2 : 0`, `baseURL` from `process.env.DIDAXIS_URL`, `trace: 'on-first-retry'`, `locale: 'en-CA'`, `timezoneId: 'America/Toronto'`, setup project plus `storageState` dependency unchanged). Do not raise retries above 2. Do not set `workers: 1`. Then run: `npx playwright test`
 - run is red → delegate to triage
 - real app bug → delegate to bug-reporter
 - test issue → delegate to test-writer (propose a fix; human OKs)
 
+## Backlog mode
+
+Work a queue instead of one ticket. The run is started from outside the agent — a Cursor Automation, a headless `agent -p` run, or a local batch script. You never decide when to start a run or schedule the next one.
+
+**Queue:** `project = DS AND status = "In Progress" AND (labels IS EMPTY OR labels != "tests-generated") ORDER BY created ASC`. Take at most **5 tickets per run**; leave the rest for the next run.
+
+**Per ticket**, sequentially, each on its own branch `tests/<key>` cut from `main`:
+
+1. Analyze (jira-ticket-to-gherkin + UI recon) → `features/<key>.feature`
+2. Delegate to test-writer → spec
+3. `npx playwright test` (config aligned as in Routing)
+4. Red → delegate to triage. Test issue → test-writer fix, then re-run. Real app bug → do not file; record triage's diagnosis in the PR for a human to confirm and hand to bug-reporter.
+5. Open one PR per ticket with `gh pr create`: title `<key>: <ticket summary>`, body links the Jira ticket, lists the scenarios, and states the run result (green, or red with the triage diagnosis). Open it as a **draft** when red.
+6. Comment the PR link on the Jira ticket and add the `tests-generated` label so the next run skips it.
+
+**Stop and move on:** an identical failure (same test, same error) seen twice, or the 3-delegation loop guard is hit → stop that ticket, open the draft PR with what exists plus the diagnosis, label it, and go to the next ticket. If analysis itself fails (no acceptance criteria, ticket unreadable), skip without a PR or label and list it in the summary.
+
+**End of run:** report a table of ticket → PR link → result (green / red-draft / skipped + reason).
+
+Never merge a PR, close or transition a ticket, or file a bug without a human.
+
 ## Loop guard
 
-At most 3 delegations per task; never re-run an identical failing spec more than twice — then stop and ask.
-
-## Approval
-
-A human approves any merge and any filed bug.
+At most 3 delegations per task (per ticket in Backlog mode); never re-run an identical failing spec more than twice — then stop and ask (in Backlog mode: stop and move on).
 
 ## Guardrails
 
 - A human approves every merge and every filed bug — no subagent merges, and bug-reporter files only after a human confirms the defect.
 - No subagent edits application source.
 - Blast radius:
-  - **test-writer** — writes only under `tests/`, `pages/`, `fixtures/`; no commits or PRs unless asked.
+  - **test-writer** — writes only under `tests/`, `pages/`, `fixtures/`; no commits or PRs unless asked. In Backlog mode the coordinator commits and opens the PR.
   - **triage** — read-only (`readonly: true`): reads CI runs, logs, and repo files; posts nothing and patches nothing.
   - **bug-reporter** — read-only on the repo (`readonly: true`); its only write is one human-approved Jira bug linked to the story.
 
-## Guardrails
-
-- A human approves every merge and every filed bug.
-- No subagent edits application source.
-- **test-writer:** may write only under `tests/`, `pages/`, and `fixtures/`.
-- **triage:** read-only; diagnosis only — no edits, merges, or filed bugs.
-- **bug-reporter:** read-only on the repo; files a Jira bug only after human approval.
-
 ## Done
 
-The suite is green for the ticket, or a bug is filed and linked.
+The suite is green for the ticket, or a bug is filed and linked. In Backlog mode: every ticket in the batch has a PR and the `tests-generated` label, or is listed as skipped with a reason.

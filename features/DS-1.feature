@@ -34,7 +34,8 @@ Feature: DS-1 Create new academic program
     And I am on the program creation form
     When I fill in Program Name with "Cybersecurity Bootcamp"
     And I leave Description empty
-    And I click Create
+    Then the Create button is enabled
+    When I click Create
     Then the New Program modal closes
     And the program list shows "Cybersecurity Bootcamp"
 
@@ -63,46 +64,73 @@ Feature: DS-1 Create new academic program
     And I fill in Description with "Valid description"
     Then the Create button is disabled
 
-  Scenario: Duplicate program name is rejected with a clear error
+  # Known bug DS-122 / DS-133 / DS-137 — expected to fail until fixed
+  Scenario: Duplicate program name is rejected
     Given I am logged in as admin on Didaxis
     And a program named "Web Development 2026" already exists in the program list
     And I am on the program creation form
     When I fill in Program Name with "Web Development 2026"
     And I fill in Description with "Duplicate attempt"
     And I click Create
-    Then I see a validation or error message indicating the name is not unique
+    Then the create request is not accepted (response is not 2xx)
     And the program list still shows exactly one program named "Web Development 2026"
 
   Scenario: Non-admin user cannot open program creation
     Given I am logged in as a non-admin user on Didaxis
     When I navigate to the Programs page
     Then I do not see a "+ New Program" button
-    And I cannot access the New Program creation form
 
-  Scenario: Create does not succeed when the session is expired or unauthorized
+  Scenario: Unauthorized save keeps the form open and saves nothing
     Given I am logged in as admin on Didaxis
     And I am on the program creation form
-    And my session is no longer authorized for program creation
+    And the create request will return 401
     When I fill in Program Name with "Session Expired Program"
     And I fill in Description with "Valid description"
     And I click Create
-    Then the program "Session Expired Program" is not added to the program list
-    And I am prompted to sign in again or see an unauthorized or session-expired message
+    Then the New Program modal stays open
+    And the Program Name field still contains "Session Expired Program"
+    And the Create button is enabled
+    And the program list does not show "Session Expired Program"
 
+  Scenario Outline: Failed save keeps the form open and saves nothing
+    Given I am logged in as admin on Didaxis
+    And I am on the program creation form
+    And the create request will return <status>
+    When I fill in Program Name with "Save Error <status>"
+    And I fill in Description with "Valid description"
+    And I click Create
+    Then the New Program modal stays open
+    And the Program Name field still contains "Save Error <status>"
+    And the Create button is enabled
+    And the program list does not show "Save Error <status>"
+
+    Examples:
+      | status |
+      | 403    |
+      | 404    |
+      | 501    |
+      | 502    |
+      | 503    |
+      | 300    |
+
+  # Known bug DS-138 — expected to fail until fixed
   Scenario: Program name exceeding maximum length is rejected
     Given I am logged in as admin on Didaxis
     And I am on the program creation form
     When I fill in Program Name with a string of 256 characters
     And I fill in Description with "Over max length"
-    Then I cannot successfully create the program
+    And I click Create
+    Then the create request is not accepted (response is not 2xx)
     And the program list does not contain a program with that 256-character name
 
+  # Known bug DS-139 — expected to fail until fixed
   Scenario: Description exceeding maximum length is rejected
     Given I am logged in as admin on Didaxis
     And I am on the program creation form
     When I fill in Program Name with "Valid Program Name"
-    And I fill in Description with a string longer than the allowed maximum
-    Then I cannot successfully create the program
+    And I fill in Description with a string of 2001 characters
+    And I click Create
+    Then the create request is not accepted (response is not 2xx)
     And the program list does not show "Valid Program Name"
 
   # Edge cases
@@ -110,11 +138,11 @@ Feature: DS-1 Create new academic program
   Scenario: Program name at maximum allowed length is accepted
     Given I am logged in as admin on Didaxis
     And I am on the program creation form
-    When I fill in Program Name with a string of exactly the maximum allowed length
+    When I fill in Program Name with a string of exactly 255 characters
     And I fill in Description with "Max length name test"
     And I click Create
     Then the New Program modal closes
-    And the program list shows the program with that maximum-length name
+    And the program list shows the program with that 255-character name
 
   Scenario: Special characters in program name and description are preserved
     Given I am logged in as admin on Didaxis
@@ -123,17 +151,20 @@ Feature: DS-1 Create new academic program
     And I fill in Description with "Description with \"quotes\", <tags>, and émojis 🎓"
     And I click Create
     Then the New Program modal closes
-    And the program list shows "QA & Testing — Cohort #1 (2026)" with the description unchanged
+    And the program list shows "QA & Testing — Cohort #1 (2026)"
+    And that row shows the description unchanged
 
-  Scenario: Leading and trailing spaces in program name are normalized on create
+  Scenario: Leading and trailing spaces in program name are trimmed on create
     Given I am logged in as admin on Didaxis
     And I am on the program creation form
     When I fill in Program Name with "  Mobile Development 2026  "
     And I fill in Description with "Trim behavior check"
     And I click Create
     Then the New Program modal closes
-    And the program list shows "Mobile Development 2026" without leading or trailing spaces
+    And the create response saves the name as exactly "Mobile Development 2026"
+    And the program list shows "Mobile Development 2026"
 
+  # Known bug DS-146 / DS-190 — expected to fail until fixed
   Scenario: Case-variant duplicate program name is rejected
     Given I am logged in as admin on Didaxis
     And a program named "Web Development 2026" already exists in the program list
@@ -141,9 +172,10 @@ Feature: DS-1 Create new academic program
     When I fill in Program Name with "web development 2026"
     And I fill in Description with "Case variant duplicate"
     And I click Create
-    Then I see a validation or error message indicating the name is not unique
-    And the program list still shows exactly one program matching "Web Development 2026" case-insensitively
+    Then the create request is not accepted (response is not 2xx)
+    And the program list does not show "web development 2026"
 
+  # Known bug DS-123 / DS-141 — expected to fail until fixed
   Scenario: Rapid double-click on Create submits only once
     Given I am logged in as admin on Didaxis
     And I am on the program creation form
@@ -153,12 +185,24 @@ Feature: DS-1 Create new academic program
     Then the New Program modal closes
     And the program list shows exactly one program named "Cloud Engineering 2026"
 
-# Ambiguities and gaps (resolve before automation)
-# 1. Maximum Program Name length is not specified in DS-1 AC; linked bugs cite both 100 and 255 characters — confirm product limit.
-# 2. Maximum Description length is not in AC; bugs cite 500 and 2000 characters — confirm product limit.
-# 3. Duplicate name uniqueness (exact vs case-insensitive) is not in AC but is implied by defect reports — confirm expected behavior and error copy.
-# 4. Whether Description is optional on create is not stated in AC; empty description behavior should be confirmed.
-# 5. Whether Program Name is trimmed before save is not in AC; defect DS-135 suggests trimming is expected — confirm.
-# 6. Double-click / duplicate submission guard is not in AC — confirm whether Create should disable after first click or debounce server-side.
-# 7. Non-admin access and session-expiry UX are out of scope in AC but affect security testing — confirm roles and error messaging.
-# 8. Successful create uses literal "Web Development 2026"; repeated test runs may conflict with duplicate-name rules unless data is isolated or cleaned up.
+# UI recon (2026-11-04)
+# - Env: https://test.didaxis.studio, admin session from the setup project's storageState (login OK, lands on /programs).
+# - New Program dialog (a11y tree): heading "New Program", textbox "Program Name" (required, placeholder "e.g. Computer Science BSc"),
+#   textbox "Description" (placeholder "Brief description"), button "▸ Show AI Generation Config", button "Cancel", button "Create" (disabled when name empty).
+#   Close (X) button has no accessible name (DS-246).
+# - No maxlength attribute on any field. Name 256 chars: Create stays enabled, POST returns 201, 256-char name saved (DS-138 still open).
+# - Description 2001 chars: Create enabled, POST returns 201, saved in full (DS-139 still open).
+# - "  Recon Trim <n>  ": POST 201, saved name trimmed — DS-135 / DS-140 appear fixed.
+# - Mocked POST 401 / 503 / 300: dialog stays open, Program Name value kept, Create re-enabled, no row added,
+#   and no alert, status, or notification is shown (DS-116 — no user-visible error). Then steps therefore assert form state, not copy.
+# - Duplicate and double-click defects still reproduce in the current suite (TC-008, TC-015 expected failures).
+# - Locator hints: getByRole('dialog').filter({ has: heading 'New Program' }), getByRole('textbox', { name: 'Program Name' }),
+#   getByRole('button', { name: 'Create', exact: true }), rows via getByRole('row').filter({ has: getByText(name, { exact: true }) }).
+#   Note: Playwright text matching normalizes whitespace, so trim must be asserted on the POST response body, not the row text.
+
+# Ambiguities and gaps
+# 1. Max Program Name length: app accepts 255 and 256; linked bugs cite 100 and 255. Suite assumes 255 — confirm product limit.
+# 2. Max Description length: bugs cite 500 and 2000. Suite uses 2001 so it exceeds either limit — confirm.
+# 3. Duplicate uniqueness (exact vs case-insensitive) and error copy are not in the AC — confirm expected message.
+# 4. Failed saves show no message (DS-116). Once copy exists, add it to the failed-save Then steps.
+# 5. Non-admin scenario needs a non-admin test account; still skipped.

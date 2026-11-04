@@ -44,18 +44,24 @@ export async function mockProgramsListMalformedResponse(page: Page) {
   });
 }
 
-export async function mockProgramsPostUnauthorized(page: Page) {
+export async function mockProgramsPostStatus(page: Page, status: number) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'POST') {
       await route.fulfill({
-        status: 401,
+        status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Unauthorized' }),
+        body: JSON.stringify({
+          message: status === 401 ? 'Unauthorized' : 'Error',
+        }),
       });
       return;
     }
     await route.continue();
   });
+}
+
+export async function mockProgramsPostUnauthorized(page: Page) {
+  await mockProgramsPostStatus(page, 401);
 }
 
 export async function mockProgramPatchUnauthorized(page: Page) {
@@ -132,6 +138,27 @@ export async function trackProgramFromCreateResponse(
   }
 }
 
+export async function clickCreateAndWaitForPostResponse(
+  page: Page,
+  programsPage: ProgramsPage,
+) {
+  const responsePromise = page.waitForResponse((resp) =>
+    isCreateProgramPost(resp.url(), resp.request().method()),
+  );
+  await programsPage.newProgramModal.clickCreate();
+  return responsePromise;
+}
+
+export async function expectFailedSaveKeepsNewProgramFormOpen(
+  programsPage: ProgramsPage,
+  programName: string,
+) {
+  await expect(programsPage.newProgramModal.heading).toBeVisible();
+  await expect(programsPage.newProgramModal.programNameField).toHaveValue(programName);
+  await expect(programsPage.newProgramModal.createButton).toBeEnabled();
+  await expect(programsPage.programRowByName(programName)).toHaveCount(0);
+}
+
 export async function createProgramWithTracking(
   page: Page,
   programsPage: ProgramsPage,
@@ -139,10 +166,10 @@ export async function createProgramWithTracking(
   description: string,
   trackProgram: TrackProgram,
 ) {
-  const responsePromise = page.waitForResponse((resp) =>
-    isCreateProgramPost(resp.url(), resp.request().method()),
-  );
-  await programsPage.createProgram(name, description);
+  await programsPage.openNewProgramForm();
+  await programsPage.newProgramModal.fillProgramName(name);
+  await programsPage.newProgramModal.fillDescription(description);
+  const responsePromise = clickCreateAndWaitForPostResponse(page, programsPage);
   await expectNewProgramModalClosed(programsPage);
   await trackProgramFromCreateResponse(responsePromise, trackProgram);
 }
