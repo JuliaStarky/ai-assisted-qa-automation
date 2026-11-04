@@ -45,12 +45,16 @@ export async function mockProgramsListMalformedResponse(page: Page) {
 }
 
 export async function mockProgramsPostUnauthorized(page: Page) {
+  await mockProgramsPostWithStatus(page, 401);
+}
+
+export async function mockProgramsPostWithStatus(page: Page, status: number) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'POST') {
       await route.fulfill({
-        status: 401,
+        status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Unauthorized' }),
+        body: JSON.stringify({ message: `HTTP ${status}` }),
       });
       return;
     }
