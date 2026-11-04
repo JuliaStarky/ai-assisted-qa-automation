@@ -123,6 +123,31 @@ export class ProgramsPage {
     });
   }
 
+  /** Program rows live in a table; there is no separate landmark for the list card. */
+  programListPanel(): Locator {
+    return this.page.getByRole('table');
+  }
+
+  async selectProgramRow(programName: string) {
+    await this.programRowByName(programName).click();
+  }
+
+  async hoverProgramRow(programName: string) {
+    await this.programRowByName(programName).hover();
+  }
+
+  async programListPanelBoundingBox() {
+    return this.programListPanel().boundingBox();
+  }
+
+  async editButtonBoundingBox(programName: string) {
+    return this.editButton(programName).boundingBox();
+  }
+
+  async deleteButtonBoundingBox(programName: string) {
+    return this.deleteButton(programName).boundingBox();
+  }
+
   editButton(programName: string): Locator {
     return this.programRowByName(programName).getByRole('button', { name: `Edit ${programName}` });
   }

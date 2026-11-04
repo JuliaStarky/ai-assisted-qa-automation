@@ -73,17 +73,49 @@ export async function mockProgramPatchUnauthorized(page: Page) {
 }
 
 export async function mockProgramDeleteServerError(page: Page) {
+  await mockProgramDeleteWithStatus(page, 500);
+}
+
+export async function mockProgramDeleteWithStatus(page: Page, status: number) {
   await page.route('**/api/programs/*', async (route) => {
     if (route.request().method() === 'DELETE') {
       await route.fulfill({
-        status: 500,
+        status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Internal Server Error' }),
+        body: JSON.stringify({ message: 'Error' }),
       });
       return;
     }
     await route.continue();
   });
+}
+
+export async function mockProgramDelete503(page: Page) {
+  await mockProgramDeleteWithStatus(page, 503);
+}
+
+export async function mockProgramDelete401(page: Page) {
+  await mockProgramDeleteWithStatus(page, 401);
+}
+
+export async function mockProgramDelete403(page: Page) {
+  await mockProgramDeleteWithStatus(page, 403);
+}
+
+export async function mockProgramDelete404(page: Page) {
+  await mockProgramDeleteWithStatus(page, 404);
+}
+
+export async function mockProgramDelete501(page: Page) {
+  await mockProgramDeleteWithStatus(page, 501);
+}
+
+export async function mockProgramDelete502(page: Page) {
+  await mockProgramDeleteWithStatus(page, 502);
+}
+
+export async function mockProgramDelete300(page: Page) {
+  await mockProgramDeleteWithStatus(page, 300);
 }
 
 export function isCreateProgramPost(url: string, method: string) {
