@@ -59,17 +59,45 @@ export async function mockProgramsPostUnauthorized(page: Page) {
 }
 
 export async function mockProgramPatchUnauthorized(page: Page) {
+  await mockProgramPatchWithStatus(page, 401);
+}
+
+export async function mockProgramPatchWithStatus(page: Page, status: number) {
   await page.route('**/api/programs/*', async (route) => {
     if (route.request().method() === 'PATCH') {
       await route.fulfill({
-        status: 401,
+        status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Unauthorized' }),
+        body: JSON.stringify({ message: 'Request failed' }),
       });
       return;
     }
     await route.continue();
   });
+}
+
+export async function mockProgramPatchServiceUnavailable(page: Page) {
+  await mockProgramPatchWithStatus(page, 503);
+}
+
+export async function mockProgramPatchForbidden(page: Page) {
+  await mockProgramPatchWithStatus(page, 403);
+}
+
+export async function mockProgramPatchNotFound(page: Page) {
+  await mockProgramPatchWithStatus(page, 404);
+}
+
+export async function mockProgramPatchNotImplemented(page: Page) {
+  await mockProgramPatchWithStatus(page, 501);
+}
+
+export async function mockProgramPatchBadGateway(page: Page) {
+  await mockProgramPatchWithStatus(page, 502);
+}
+
+export async function mockProgramPatchMultipleChoices(page: Page) {
+  await mockProgramPatchWithStatus(page, 300);
 }
 
 export async function mockProgramDeleteServerError(page: Page) {
