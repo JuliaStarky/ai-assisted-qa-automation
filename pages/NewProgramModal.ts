@@ -46,4 +46,8 @@ export class NewProgramModal {
   async clickCancel() {
     await this.cancelButton.click();
   }
+
+  async pressEnterInProgramNameField() {
+    await this.programNameField.press('Enter');
+  }
 }
