@@ -1,0 +1,76 @@
+- generic [ref=e26]:
+  - navigation [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - img "Didaxis Studio" [ref=e30]
+        - generic [ref=e31]:
+          - paragraph [ref=e32]: Didaxis
+          - paragraph [ref=e33]: Studio
+      - generic [ref=e34]:
+        - button "📊 Dashboard" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: 📊
+          - paragraph [ref=e37]: Dashboard
+        - button "🎓 Programs" [ref=e38] [cursor=pointer]:
+          - generic [ref=e39]: 🎓
+          - paragraph [ref=e40]: Programs
+        - button "📅 Calendar" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 📅
+          - paragraph [ref=e43]: Calendar
+        - button "✅ Validation" [ref=e44] [cursor=pointer]:
+          - generic [ref=e45]: ✅
+          - paragraph [ref=e46]: Validation
+        - button "⚡ Scheduler" [ref=e47] [cursor=pointer]:
+          - generic [ref=e48]: ⚡
+          - paragraph [ref=e49]: Scheduler
+        - button "📤 Export" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: 📤
+          - paragraph [ref=e52]: Export
+      - button "⚙️ Settings" [ref=e54] [cursor=pointer]:
+        - generic [ref=e55]: ⚙️
+        - paragraph [ref=e56]: Settings
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]: A
+          - generic [ref=e61]:
+            - paragraph [ref=e62]: Admin
+            - paragraph [ref=e63]: Didaxis Studio
+        - button [ref=e64] [cursor=pointer]:
+          - paragraph [ref=e68]: Sign out
+  - main [ref=e69]:
+    - generic [ref=e16234]:
+      - generic [ref=e16237]:
+        - heading "AI Assist" [level=2] [ref=e16238]
+        - paragraph [ref=e16239]: AI-powered schedule generation and editing via the Didaxis CLI
+      - generic [ref=e16240]:
+        - generic [ref=e16241]:
+          - generic [ref=e16242]: Program
+          - textbox "Program" [ref=e16244] [cursor=pointer]:
+            - /placeholder: Select a program
+        - generic [ref=e16245]:
+          - generic [ref=e16246]: Semester
+          - textbox "Semester" [disabled] [ref=e16248]:
+            - /placeholder: Select a program first
+      - generic [ref=e16249]:
+        - generic [ref=e16251]:
+          - paragraph [ref=e16254]: Didaxis CLI
+          - generic [ref=e16255]:
+            - generic [ref=e16256]: Claude 4.5
+            - button "x" [ref=e16258] [cursor=pointer]
+        - generic [ref=e16264]:
+          - paragraph [ref=e16265]: Welcome to Didaxis CLI — your AI-powered scheduling assistant.
+          - paragraph [ref=e16267]: "Available commands:"
+          - paragraph [ref=e16268]: validate — Check current schedule for conflicts
+          - paragraph [ref=e16269]: generate — Auto-generate schedule for a semester
+          - paragraph [ref=e16270]: import — Import curriculum from a document
+          - paragraph [ref=e16271]: fix — Auto-fix detected conflicts
+          - paragraph [ref=e16272]: suggest — Get schedule improvement suggestions
+          - paragraph [ref=e16274]: Type a command or ask a question to get started.
+        - generic [ref=e16276]:
+          - button "Fix conflicts" [ref=e16277] [cursor=pointer]
+          - button "Import" [ref=e16280] [cursor=pointer]
+          - button "Validate" [ref=e16283] [cursor=pointer]
+          - button "Suggest schedule" [ref=e16286] [cursor=pointer]
+        - generic [ref=e16290]:
+          - paragraph [ref=e16291]: ">"
+          - textbox "Type a command..." [ref=e16294]
+          - button "Send" [disabled] [ref=e16295]

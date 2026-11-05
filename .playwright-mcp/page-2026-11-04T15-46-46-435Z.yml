@@ -1,0 +1,48 @@
+- generic [ref=e26]:
+  - navigation [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - img "Didaxis Studio" [ref=e30]
+        - generic [ref=e31]:
+          - paragraph [ref=e32]: Didaxis
+          - paragraph [ref=e33]: Studio
+      - generic [ref=e34]:
+        - button "📊 Dashboard" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: 📊
+          - paragraph [ref=e37]: Dashboard
+        - button "🎓 Programs" [ref=e38] [cursor=pointer]:
+          - generic [ref=e39]: 🎓
+          - paragraph [ref=e40]: Programs
+        - button "📅 Calendar" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 📅
+          - paragraph [ref=e43]: Calendar
+        - button "✅ Validation" [ref=e44] [cursor=pointer]:
+          - generic [ref=e45]: ✅
+          - paragraph [ref=e46]: Validation
+        - button "⚡ Scheduler" [ref=e47] [cursor=pointer]:
+          - generic [ref=e48]: ⚡
+          - paragraph [ref=e49]: Scheduler
+        - button "📤 Export" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: 📤
+          - paragraph [ref=e52]: Export
+      - button "⚙️ Settings" [ref=e54] [cursor=pointer]:
+        - generic [ref=e55]: ⚙️
+        - paragraph [ref=e56]: Settings
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]: A
+          - generic [ref=e61]:
+            - paragraph [ref=e62]: Admin
+            - paragraph [ref=e63]: Didaxis Studio
+        - button [ref=e64] [cursor=pointer]:
+          - paragraph [ref=e68]: Sign out
+  - main [ref=e69]:
+    - generic [ref=e16218]:
+      - generic [ref=e16220]:
+        - generic [ref=e16221]:
+          - heading "Dashboard" [level=2] [ref=e16222]
+          - paragraph [ref=e16223]: Welcome to Didaxis Studio
+        - generic [ref=e16224]: Connected
+      - generic [ref=e16229]:
+        - paragraph [ref=e16232]: Quick Start
+        - paragraph [ref=e16233]: 1. Create a Program to define your academic program structure.2. Add Courses with session templates and hour requirements.3. Use the Calendar to schedule sessions via drag-and-drop.4. Check Validation for conflicts and constraint violations.5. Use AI Assist to auto-generate schedules or import curricula.

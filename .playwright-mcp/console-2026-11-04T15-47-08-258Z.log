@@ -1,0 +1,2 @@
+[    8619ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://test.didaxis.studio/api/programs:0
+[   21029ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://test.didaxis.studio/api/programs:0

@@ -1,0 +1,59 @@
+- generic [ref=e26]:
+  - navigation [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - img "Didaxis Studio" [ref=e30]
+        - generic [ref=e31]:
+          - paragraph [ref=e32]: Didaxis
+          - paragraph [ref=e33]: Studio
+      - generic [ref=e34]:
+        - button "📊 Dashboard" [ref=e35] [cursor=pointer]:
+          - generic [ref=e36]: 📊
+          - paragraph [ref=e37]: Dashboard
+        - button "🎓 Programs" [ref=e38] [cursor=pointer]:
+          - generic [ref=e39]: 🎓
+          - paragraph [ref=e40]: Programs
+        - button "📅 Calendar" [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 📅
+          - paragraph [ref=e43]: Calendar
+        - button "✅ Validation" [ref=e44] [cursor=pointer]:
+          - generic [ref=e45]: ✅
+          - paragraph [ref=e46]: Validation
+        - button "⚡ Scheduler" [ref=e47] [cursor=pointer]:
+          - generic [ref=e48]: ⚡
+          - paragraph [ref=e49]: Scheduler
+        - button "📤 Export" [ref=e50] [cursor=pointer]:
+          - generic [ref=e51]: 📤
+          - paragraph [ref=e52]: Export
+      - button "⚙️ Settings" [ref=e54] [cursor=pointer]:
+        - generic [ref=e55]: ⚙️
+        - paragraph [ref=e56]: Settings
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]: A
+          - generic [ref=e61]:
+            - paragraph [ref=e62]: Admin
+            - paragraph [ref=e63]: Didaxis Studio
+        - button [ref=e64] [cursor=pointer]:
+          - paragraph [ref=e68]: Sign out
+  - main [ref=e69]:
+    - generic [ref=e16190]:
+      - generic [ref=e16193]:
+        - heading "Validation" [level=2] [ref=e16194]
+        - paragraph [ref=e16195]: Check schedule for conflicts and constraint violations
+      - generic [ref=e16197]:
+        - paragraph [ref=e16198]: Select Semester
+        - generic [ref=e16199]:
+          - generic [ref=e16200]:
+            - generic [ref=e16201]: Program
+            - textbox "Program" [ref=e16203] [cursor=pointer]:
+              - /placeholder: Select a program
+          - generic [ref=e16204]:
+            - generic [ref=e16205]: Semester
+            - textbox "Semester" [disabled] [ref=e16207]:
+              - /placeholder: Select a program first
+          - button "Re-validate" [disabled] [ref=e16208]
+      - generic [ref=e16213]:
+        - paragraph [ref=e16215]: 📋
+        - paragraph [ref=e16216]: No semester selected
+        - paragraph [ref=e16217]: Select a program and semester above to run validation.
