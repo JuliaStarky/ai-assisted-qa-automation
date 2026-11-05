@@ -60,4 +60,10 @@ export class EditProgramModal {
   async clickCancel() {
     await this.cancelButton.click();
   }
+
+  async tryClickSave() {
+    if (await this.saveButton.isEnabled()) {
+      await this.saveButton.click();
+    }
+  }
 }
