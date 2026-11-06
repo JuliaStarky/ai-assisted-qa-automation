@@ -167,6 +167,11 @@ export class ProgramsPage {
     return this.programRowByNameAndDescription(programName, description).getByText(description);
   }
 
+  /** Text node scoped to a row by program name; use with expect(...).toBeHidden() when that text must not appear in that row. */
+  textInNamedProgramRow(programName: string, text: string): Locator {
+    return this.programRowByName(programName).getByText(text, { exact: true });
+  }
+
   visibleText(text: string): Locator {
     return this.page.getByText(text);
   }

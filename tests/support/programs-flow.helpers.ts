@@ -1,4 +1,13 @@
 import { expect, type Page } from '@playwright/test';
+
+export function waitForProgramsListGet(page: Page, status: number) {
+  return page.waitForResponse(
+    (resp) =>
+      new URL(resp.url()).pathname === '/api/programs' &&
+      resp.request().method() === 'GET' &&
+      resp.status() === status,
+  );
+}
 import type { TrackProgram } from '../../fixtures/cleanup.fixture';
 import { ProgramsPage } from '../../pages/ProgramsPage';
 
@@ -23,6 +32,20 @@ export async function mockProgramsListServerError(page: Page) {
         status: 500,
         contentType: 'application/json',
         body: JSON.stringify({ message: 'Internal Server Error' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
+export async function mockProgramsListStatus(page: Page, status: number) {
+  await page.route('**/api/programs', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: `HTTP ${status}` }),
       });
       return;
     }

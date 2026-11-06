@@ -6,6 +6,9 @@ let sessionBearerToken: string | undefined;
 
 export type TrackProgram = (uuid: string) => void;
 
+type TestFixtures = { trackProgram: TrackProgram; _authForCleanup: void };
+type WorkerFixtures = { _cleanupTracked: void };
+
 function captureBearerFromRequest(request: Request) {
   const auth = request.headers()['authorization'];
   if (auth?.startsWith('Bearer ')) {
@@ -13,7 +16,15 @@ function captureBearerFromRequest(request: Request) {
   }
 }
 
-export const test = base.extend<{ trackProgram: TrackProgram; _authForCleanup: void }>({
+export const test = base.extend<TestFixtures, WorkerFixtures>({
+  _cleanupTracked: [
+    async ({}, use) => {
+      await use();
+      await deleteTrackedPrograms();
+    },
+    { scope: 'worker', auto: true },
+  ],
+
   _authForCleanup: [
     async ({ page }, use) => {
       page.on('request', captureBearerFromRequest);
@@ -40,7 +51,7 @@ async function deleteTrackedPrograms(): Promise<void> {
     return;
   }
 
-  const token = process.env.DIDAXIS_API_TOKEN ?? sessionBearerToken;
+  const token = process.env.DIDAXIS_API_TOKEN || sessionBearerToken;
   if (!token) {
     console.warn('[api-cleanup] Skipping delete: set DIDAXIS_API_TOKEN or log in so a Bearer token is captured');
     return;
@@ -68,7 +79,3 @@ async function deleteTrackedPrograms(): Promise<void> {
     console.log(`[api-cleanup] Deleted ${uuids.length} program(s)`);
   }
 }
-
-test.afterAll(async () => {
-  await deleteTrackedPrograms();
-});
