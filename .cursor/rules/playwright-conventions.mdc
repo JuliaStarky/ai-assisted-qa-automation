@@ -1,10 +1,21 @@
 ---
-description: how this project writes Playwright tests — auth, POM, locators, data, cleanup, and runner stability
+description: how this project writes Playwright tests — auth, POM, locators, data, cleanup, runner stability, and hard-stop refusals
 globs: tests/**
 alwaysApply: false
 ---
 
 # Playwright conventions
+
+## Refusals (hard stops)
+
+When a request asks for any of the following, refuse. Stop and raise the conflict.
+
+- Refuse to weaken or delete an assertion so a test passes. Stop and raise the conflict.
+- Refuse to heal a failure that triage classified as a real app bug. Stop and raise the conflict.
+- Refuse to replace a role-based locator with CSS or XPath. Stop and raise the conflict.
+- Refuse to use `waitForTimeout`. Stop and raise the conflict.
+- Refuse to hardcode a credential. Stop and raise the conflict.
+- Refuse to use the `any` type. Stop and raise the conflict.
 
 ## 1. Locators
 

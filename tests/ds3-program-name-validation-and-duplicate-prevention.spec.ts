@@ -20,7 +20,7 @@ test.describe('Positive flows', () => {
 
     await programsPage.createProgram(programName, description);
     await expectNewProgramModalClosed(programsPage);
-    await expect(programsPage.programRowByName(programName)).toHaveCount(0);
+    await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
   test('TC-002 — Standard alphanumeric program name is accepted', async ({ page }) => {

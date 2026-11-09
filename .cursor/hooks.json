@@ -6,6 +6,11 @@
         "command": ".cursor/hooks/generation-gate.sh",
         "matcher": "Write",
         "failClosed": true
+      },
+      {
+        "command": ".cursor/hooks/no-weaken-assertions.sh",
+        "matcher": "Write",
+        "failClosed": true
       }
     ]
   }
