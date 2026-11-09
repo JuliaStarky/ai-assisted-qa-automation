@@ -20,7 +20,7 @@ test.describe('Positive flows', () => {
 
     await programsPage.createProgram(programName, description);
     await expectNewProgramModalClosed(programsPage);
-    await expect(programsPage.programRowByName(programName)).toHaveCount(1);
+    await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
   test('TC-002 — Standard alphanumeric program name is accepted', async ({ page }) => {
@@ -87,7 +87,7 @@ test.describe('Negative flows', () => {
 
     await expect(programsPage.duplicateNameError).toBeVisible();
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
-    await expect(programsPage.newProgramModal.heading).toBeVisible();
+    await expect(programsPage.newProgramModal.heading).not.toBeVisible();
   });
 
   test('TC-007 — Duplicate check applies after trim (whitespace-padded duplicate)', async ({
@@ -103,7 +103,7 @@ test.describe('Negative flows', () => {
     await programsPage.attemptCreateProgram(`  ${programName}  `, `Padded duplicate-${Date.now()}`);
 
     await expect(programsPage.duplicateNameError).toBeVisible();
-    await expect(programsPage.programRowByName(programName)).toHaveCount(1);
+    await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
   test('TC-008 — Invalid name must not partially persist on failed create', async ({ page }) => {

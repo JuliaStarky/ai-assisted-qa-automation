@@ -27,6 +27,8 @@ export class ProgramsPage {
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
+    this.heading = page.getByRole('heading', { name: 'Programmes' });
+    this.newProgramButton = page.getByRole('button', { name: '+ New Programmes' });
     this.newProgramButton = page.getByRole('button', { name: '+ New Program' });
     this.newProgramModal = new NewProgramModal(page);
     this.editProgramModal = new EditProgramModal(page);
@@ -42,7 +44,7 @@ export class ProgramsPage {
       'No programs yet. Create your first program to get started.',
       { exact: true },
     );
-    this.emptyStateCreateProgramButton = page.getByRole('button', { name: 'Create Program' });
+    this.emptyStateCreateProgramButton = page.getByRole('button', { name: 'Create Programme' });
     this.subtitle = page.getByText('Manage academic programs and semesters');
     this.loadErrorMessage = page.getByText(/error|failed|retry|unable to load/i);
     this.programNameColumnLabel = page.getByText('Program', { exact: true });
