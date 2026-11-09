@@ -47,7 +47,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Work the In Progress backlog
+      - name: Work the backlog or self-heal the suite
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           ATLASSIAN_API_TOKEN: ${{ secrets.ATLASSIAN_API_TOKEN }}
@@ -69,7 +69,13 @@ jobs:
             4. Commit only tests/, pages/, fixtures/, features/, and playwright.config.ts, push the branch, and open one PR with gh pr create titled "<key>: <ticket summary>" whose body links the Jira ticket, lists the scenarios, states the run result, and links any self-heal repair PRs from step 3. Open it as a draft if the run is still red.
             5. Comment the PR link on the Jira ticket and add the "tests-generated" label.
 
-            Never merge a PR, close or transition a ticket, file a Jira bug, or edit application source. Finish by printing a table of ticket, PR link, and result (green, red-draft, or skipped with reason).
+            If the queue is empty, do not stop. Self-heal is not gated on a Jira ticket. Stay on main and heal the existing suite:
+            1. Run npx playwright test.
+            2. If green, print that there were no tickets and the suite is green, then stop.
+            3. If red, delegate to triage (Heal on red in qa-orchestration). If triage classifies drift (test issue), apply the self-heal skill (.cursor/skills/self-heal/SKILL.md)—not test-writer: re-discover the control, patch only the drifted locator in pages/, re-run with assertions unchanged. At most 5 heals this run; stop if the same failure repeats twice or a heal cannot go green. After each successful heal, cut branch heal/<short-slug> from main, commit only that pages/ locator change, push, and open a repair PR with gh pr create per self-heal step 6 (title heal: ...). If triage finds a real app bug, do not heal and do not file a Jira bug; print the diagnosis. For red failures that are not locator drift, do not patch; print the diagnosis.
+            4. Finish by printing a table of failing spec, triage classification, repair PR link (or none), and result (green, healed, or stopped with reason).
+
+            Never merge a PR, close or transition a ticket, file a Jira bug, or edit application source. When the queue was not empty, finish by printing a table of ticket, PR link, and result (green, red-draft, or skipped with reason).
         run: agent -p --force --trust --output-format text "$PROMPT"
 
       - uses: actions/upload-artifact@v4
