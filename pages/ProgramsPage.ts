@@ -162,6 +162,10 @@ export class ProgramsPage {
     return this.programRowByName(programName).getByRole('button', { name: `Delete ${programName}` });
   }
 
+  allDeleteButtons(): Locator {
+    return this.page.getByRole('button', { name: /^Delete / });
+  }
+
   programNameInRow(programName: string, description?: string): Locator {
     const row = description
       ? this.programRowByNameAndDescription(programName, description)

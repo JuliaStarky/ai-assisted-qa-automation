@@ -98,10 +98,6 @@ export async function mockProgramPatchUnauthorized(page: Page) {
   await mockProgramPatchStatus(page, 401);
 }
 
-export function isProgramPatch(url: string, method: string) {
-  return url.includes('/api/programs/') && method === 'PATCH';
-}
-
 export type ProgramApiRecord = {
   id: string;
   name: string;
@@ -154,11 +150,11 @@ export async function expectFailedSaveKeepsEditProgramFormOpen(
   await expect(programsPage.programRowByName(editedProgramName)).toHaveCount(0);
 }
 
-export async function mockProgramDeleteServerError(page: Page) {
+export async function mockProgramDeleteStatus(page: Page, status: number) {
   await page.route('**/api/programs/*', async (route) => {
     if (route.request().method() === 'DELETE') {
       await route.fulfill({
-        status: 500,
+        status,
         contentType: 'application/json',
         body: JSON.stringify({ message: 'Internal Server Error' }),
       });
@@ -166,6 +162,10 @@ export async function mockProgramDeleteServerError(page: Page) {
     }
     await route.continue();
   });
+}
+
+export async function mockProgramDeleteServerError(page: Page) {
+  await mockProgramDeleteStatus(page, 500);
 }
 
 export function isCreateProgramPost(url: string, method: string) {
