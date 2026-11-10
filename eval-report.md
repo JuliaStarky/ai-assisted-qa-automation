@@ -1,17 +1,19 @@
 # Suite reliability report
 
-Generated 2026-11-10 13:59 UTC (local) by `scripts/eval-report.py`. This file is rewritten after `.github/workflows/test-generation.yml` finishes and after a local agent or orchestrator stops. Cursor has no built-in telemetry for these four numbers.
+Generated 2026-11-10 20:06 UTC (GitHub Actions) by `scripts/eval-report.py`. This file is rewritten after `.github/workflows/test-generation.yml` finishes and after a local agent or orchestrator stops. Cursor has no built-in telemetry for these four numbers.
 
 ## Flake rate
 
 | | |
 | --- | --- |
-| Number | 6 / 989 finished tests (0.6%) |
+| Number | 6 / 869 finished tests (0.7%) |
 | How measured | Playwright's own summary in the last 10 completed E2E Tests runs on GitHub Actions (`gh run view --log`). A test is counted when the summary says `flaky`: it failed, then passed on a CI retry (`retries: 2`). Cancelled runs are left out. The log prints the summary twice; only the first copy is counted. Cursor has no flake telemetry. |
 | What it tells us | 6 tests passed only because CI retried them. The red runs are mostly hard failures, and the retries that did pass cluster on the programs axe scan. |
 
 | Run | Event | Flaky | Passed | Failed |
 | --- | --- | ---: | ---: | ---: |
+| [42829751991](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42829751991) | push | 0 | 53 | 1 |
+| [42829655477](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42829655477) | push | 1 | 52 | 1 |
 | [42676944289](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42676944289) | push | 0 | 103 | 3 |
 | [42654912825](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42654912825) | push | 0 | 103 | 3 |
 | [42653402341](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42653402341) | push | 2 | 101 | 3 |
@@ -20,17 +22,15 @@ Generated 2026-11-10 13:59 UTC (local) by `scripts/eval-report.py`. This file is
 | [41881505839](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41881505839) | push | 1 | 101 | 4 |
 | [41880571281](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41880571281) | pull_request | 0 | 108 | 7 |
 | [41880097600](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41880097600) | pull_request | 1 | 103 | 11 |
-| [41879670547](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41879670547) | pull_request | 1 | 104 | 10 |
-| [41879361071](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41879361071) | pull_request | 0 | 93 | 20 |
 
 | Run | Passed only on retry |
 | --- | --- |
+| [42829655477](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42829655477) | tests/ds264-create-new-academic-program.spec.ts:54:9 › DS-264 Create new academic program › Happy paths › TC-003 — Newly created program appears at the top of the list @sanity |
 | [42653402341](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42653402341) | tests/ds5-program-list-display.spec.ts:19:9 › DS-5 Program list display › Positive flows › TC-001 — Display program list with key details |
 | [42653402341](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42653402341) | tests/programs.a11y.spec.ts:8:7 › Programs page accessibility › axe scan of Programs page (wcag2a, wcag2aa) |
 | [42039352558](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/42039352558) | tests/programs.a11y.spec.ts:8:7 › Programs page accessibility › axe scan of Programs page (wcag2a, wcag2aa) |
 | [41881505839](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41881505839) | tests/programs.a11y.spec.ts:8:7 › Programs page accessibility › axe scan of Programs page (wcag2a, wcag2aa) |
 | [41880097600](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41880097600) | tests/programs.a11y.spec.ts:8:7 › Programs page accessibility › axe scan of Programs page (wcag2a, wcag2aa) |
-| [41879670547](https://github.com/JuliaStarky/ai-assisted-qa-automation/actions/runs/41879670547) | tests/ds1-create-new-academic-program.spec.ts:164:7 › Edge cases › TC-011 — Program name exceeding maximum length is rejected |
 
 ## Heal success rate
 
@@ -68,6 +68,8 @@ No pull request title contains `heal`.
 ## Ask vs guess
 
 <!-- ask-vs-guess:start -->
+Kept from the last machine that had IDE transcripts. This run is GitHub Actions, which has no Cursor session store.
+
 | | |
 | --- | --- |
 | Asked | 5 |
