@@ -29,6 +29,7 @@ export class ProgramsPage {
   readonly anyEditButton: Locator;
   readonly programSearchBox: Locator;
   readonly programListAlertOrStatus: Locator;
+  readonly userVisibleErrorFeedback: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
@@ -61,6 +62,7 @@ export class ProgramsPage {
     this.anyEditButton = page.getByRole('button', { name: /^Edit / });
     this.programSearchBox = page.getByRole('searchbox');
     this.programListAlertOrStatus = page.getByRole('alert').or(page.getByRole('status'));
+    this.userVisibleErrorFeedback = page.getByRole('alert').or(page.getByRole('status'));
   }
 
   selectedProgramHeading(programName: string): Locator {
