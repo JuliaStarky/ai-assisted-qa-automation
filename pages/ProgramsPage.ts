@@ -181,6 +181,16 @@ export class ProgramsPage {
     return this.signInButton.or(this.sessionExpiredMessage);
   }
 
+  userVisibleErrorFeedback(): Locator {
+    return this.loadErrorMessage
+      .or(this.page.getByRole('alert'))
+      .or(this.page.getByRole('status'));
+  }
+
+  allEditButtons(): Locator {
+    return this.page.getByRole('button', { name: /^Edit / });
+  }
+
   tabCharacterNameOutcomeIndicator(programName: string): Locator {
     const spacedName = programName.replace('\t', ' ');
     return this.programRowByName(programName)

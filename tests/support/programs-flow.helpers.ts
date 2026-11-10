@@ -78,18 +78,80 @@ export async function mockProgramsPostUnauthorized(page: Page) {
   await mockProgramsPostStatus(page, 401);
 }
 
-export async function mockProgramPatchUnauthorized(page: Page) {
+export async function mockProgramPatchStatus(page: Page, status: number) {
   await page.route('**/api/programs/*', async (route) => {
     if (route.request().method() === 'PATCH') {
       await route.fulfill({
-        status: 401,
+        status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Unauthorized' }),
+        body: JSON.stringify({
+          message: status === 401 ? 'Unauthorized' : 'Error',
+        }),
       });
       return;
     }
     await route.continue();
   });
+}
+
+export async function mockProgramPatchUnauthorized(page: Page) {
+  await mockProgramPatchStatus(page, 401);
+}
+
+export function isProgramPatch(url: string, method: string) {
+  return url.includes('/api/programs/') && method === 'PATCH';
+}
+
+export type ProgramApiRecord = {
+  id: string;
+  name: string;
+  description?: string | null;
+  total_hours?: number | null;
+  default_session_hours?: number | null;
+  default_exam_hours?: number | null;
+  target_audience?: string | null;
+  focus_areas?: string | null;
+  sync_async_ratio?: number | null;
+};
+
+export async function seedProgramWithTrackingAndCaptureCreateData(
+  page: Page,
+  programsPage: ProgramsPage,
+  name: string,
+  description: string,
+  trackProgram: TrackProgram,
+) {
+  await programsPage.goto();
+  await expectProgramsPageReady(programsPage);
+  await programsPage.openNewProgramForm();
+  await programsPage.newProgramModal.fillProgramName(name);
+  await programsPage.newProgramModal.fillDescription(description);
+  const responsePromise = page.waitForResponse((resp) =>
+    isCreateProgramPost(resp.url(), resp.request().method()),
+  );
+  await programsPage.newProgramModal.clickCreate();
+  const response = await responsePromise;
+  await expectNewProgramModalClosed(programsPage);
+  const body = (await response.json()) as { data?: ProgramApiRecord };
+  const data = body.data;
+  if (!data?.id) {
+    throw new Error('Create program response missing data.id');
+  }
+  trackProgram(data.id);
+  await expect(programsPage.programRowByName(name)).toHaveCount(1);
+  return data;
+}
+
+export async function expectFailedSaveKeepsEditProgramFormOpen(
+  programsPage: ProgramsPage,
+  editedProgramName: string,
+  originalProgramName: string,
+) {
+  await expect(programsPage.editProgramModal.heading).toBeVisible();
+  await expect(programsPage.editProgramModal.programNameField).toHaveValue(editedProgramName);
+  await expect(programsPage.editProgramModal.saveButton).toBeEnabled();
+  await expect(programsPage.programRowByName(originalProgramName)).toHaveCount(1);
+  await expect(programsPage.programRowByName(editedProgramName)).toHaveCount(0);
 }
 
 export async function mockProgramDeleteServerError(page: Page) {
