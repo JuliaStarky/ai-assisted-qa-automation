@@ -2,6 +2,14 @@ import { expect, type Page } from '@playwright/test';
 import type { TrackProgram } from '../../fixtures/cleanup.fixture';
 import { ProgramsPage } from '../../pages/ProgramsPage';
 
+export function waitForProgramsListGet(page: Page, status?: number) {
+  return page.waitForResponse((resp) => {
+    const isListGet =
+      new URL(resp.url()).pathname === '/api/programs' && resp.request().method() === 'GET';
+    return isListGet && (status === undefined || resp.status() === status);
+  });
+}
+
 export async function mockEmptyProgramList(page: Page) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'GET') {
@@ -36,18 +44,12 @@ export async function mockProgramsListStatus(page: Page, status: number) {
       await route.fulfill({
         status,
         contentType: 'application/json',
-        body: JSON.stringify({ message: 'Error' }),
+        body: JSON.stringify({ message: `HTTP ${status}` }),
       });
       return;
     }
     await route.continue();
   });
-}
-
-export function waitForProgramsListGet(page: Page) {
-  return page.waitForResponse(
-    (resp) => resp.url().includes('/api/programs') && resp.request().method() === 'GET',
-  );
 }
 
 export async function mockProgramsListMalformedResponse(page: Page) {
