@@ -20,7 +20,7 @@ test.describe('Positive flows', () => {
     await expectProgramsPageReady(programsPage);
   });
 
-  test('TC-001 — Program creation form displays required fields', async ({ page }) => {
+  test('TC-001 — Program creation form displays required fields', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.openNewProgramForm();
 
@@ -31,7 +31,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.newProgramModal.cancelButton).toBeVisible();
   });
 
-  test('TC-002 — New program appears in list after successful create', async ({ page, trackProgram }) => {
+  test('TC-002 — New program appears in list after successful create', { tag: '@smoke' }, async ({ page, trackProgram }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Web Development 2026-${Date.now()}`;
     const description = `Full-stack web development program-${Date.now()}`;
@@ -42,7 +42,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
   });
 
-  test('TC-003 — Program can be created with valid name and description', async ({ page, trackProgram }) => {
+  test('TC-003 — Program can be created with valid name and description', { tag: '@sanity' }, async ({ page, trackProgram }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Data Science Fundamentals-${Date.now()}`;
     const description = `Introductory data science track-${Date.now()}`;
@@ -53,7 +53,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
   });
 
-  test('TC-004 — Cancel dismisses form without saving', async ({ page }) => {
+  test('TC-004 — Cancel dismisses form without saving', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Temporary Program-${Date.now()}`;
     const description = `Should not be saved-${Date.now()}`;
@@ -75,7 +75,7 @@ test.describe('Negative flows', () => {
     await expectProgramsPageReady(programsPage);
   });
 
-  test('TC-005 — Create remains disabled when program name is empty', async ({ page }) => {
+  test('TC-005 — Create remains disabled when program name is empty', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.openNewProgramForm();
     await programsPage.newProgramModal.fillDescription(`Optional description-${Date.now()}`);
@@ -83,7 +83,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.newProgramModal.createButton).toBeDisabled();
   });
 
-  test('TC-006 — Whitespace-only program name does not enable create', async ({ page }) => {
+  test('TC-006 — Whitespace-only program name does not enable create', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.openNewProgramForm();
     await programsPage.newProgramModal.fillProgramName('   ');
@@ -92,11 +92,11 @@ test.describe('Negative flows', () => {
     await expect(programsPage.newProgramModal.createButton).toBeDisabled();
   });
 
-  test('TC-007 — Non-admin user cannot create a program', async () => {
+  test('TC-007 — Non-admin user cannot create a program', { tag: '@regression' }, async () => {
     test.skip(true, 'Requires a non-admin test account (not available in this environment)');
   });
 
-  test('TC-008 — Duplicate program name is not silently accepted', async ({ page, trackProgram }) => {
+  test('TC-008 — Duplicate program name is not silently accepted', { tag: '@regression' }, async ({ page, trackProgram }) => {
     test.fail(true, 'Didaxis test env allows duplicate program names without validation (DS-122)');
 
     const programsPage = new ProgramsPage(page);
@@ -120,7 +120,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-009 — Create does not succeed when session expired', async ({ page }) => {
+  test('TC-009 — Create does not succeed when session expired', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Session Expired Program-${Date.now()}`;
 
@@ -144,7 +144,7 @@ test.describe('Edge cases', () => {
     await expectProgramsPageReady(programsPage);
   });
 
-  test('TC-010 — Program name at maximum allowed length', async ({ page, trackProgram }) => {
+  test('TC-010 — Program name at maximum allowed length', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const programsPage = new ProgramsPage(page);
     const suffix = String(Date.now());
     const programName = `${'A'.repeat(255 - suffix.length)}${suffix}`;
@@ -160,7 +160,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-011 — Program name exceeding maximum length is rejected', async ({ page, trackProgram }) => {
+  test('TC-011 — Program name exceeding maximum length is rejected', { tag: '@regression' }, async ({ page, trackProgram }) => {
     test.fail(true, 'Didaxis accepts Program Name over 255 chars (DS-138)');
 
     const programsPage = new ProgramsPage(page);
@@ -179,7 +179,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
-  test('TC-012 — Special characters in program name and description', async ({ page, trackProgram }) => {
+  test('TC-012 — Special characters in program name and description', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `QA & Testing — Cohort #1 (2026)-${Date.now()}`;
     const description = `Description with "quotes", <tags>, and émojis 🎓-${Date.now()}`;
@@ -189,7 +189,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
   });
 
-  test('TC-013 — Empty description with valid program name', async ({ page, trackProgram }) => {
+  test('TC-013 — Empty description with valid program name', { tag: '@regression' }, async ({ page, trackProgram }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Cybersecurity Bootcamp-${Date.now()}`;
 
@@ -204,7 +204,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-014 — Leading and trailing spaces in program name are normalized', async ({
+  test('TC-014 — Leading and trailing spaces in program name are normalized', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {
@@ -225,7 +225,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-015 — Rapid double-click on Create does not duplicate program', async ({ page, trackProgram }) => {
+  test('TC-015 — Rapid double-click on Create does not duplicate program', { tag: '@regression' }, async ({ page, trackProgram }) => {
     test.fail(
       true,
       'Didaxis test env creates two programs on double-click Create (DS-1 TC-015)',
@@ -265,7 +265,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-016 — Case-variant duplicate program name is rejected', async ({ page, trackProgram }) => {
+  test('TC-016 — Case-variant duplicate program name is rejected', { tag: '@regression' }, async ({ page, trackProgram }) => {
     test.fail(true, 'Didaxis allows case-variant duplicate program names (DS-146)');
 
     const programsPage = new ProgramsPage(page);
@@ -292,7 +292,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(lowercaseName)).toHaveCount(0);
   });
 
-  test('TC-017 — Description exceeding maximum length is rejected', async ({ page, trackProgram }) => {
+  test('TC-017 — Description exceeding maximum length is rejected', { tag: '@regression' }, async ({ page, trackProgram }) => {
     test.fail(true, 'Didaxis accepts Description over 2000 chars (DS-139)');
 
     const programsPage = new ProgramsPage(page);
@@ -311,7 +311,7 @@ test.describe('Edge cases', () => {
   });
 
   for (const status of [403, 404, 501, 502, 503, 300] as const) {
-    test(`TC-018 — Save returning ${status} keeps the form open`, async ({ page }) => {
+    test(`TC-018 — Save returning ${status} keeps the form open`, { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Save Error ${status}-${Date.now()}`;
 

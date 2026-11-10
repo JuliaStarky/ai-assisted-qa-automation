@@ -20,7 +20,7 @@ import {
 
 test.describe('DS-257 Valeria - Edit existing program details', () => {
   test.describe('Happy paths', () => {
-    test('Open program for editing', async ({ page, trackProgram }) => {
+    test('Open program for editing', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -36,7 +36,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.editProgramModal.cancelButton).toBeVisible();
     });
 
-    test('Successfully edit a program name', async ({ page, trackProgram }) => {
+    test('Successfully edit a program name', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -58,7 +58,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('Edit preserves unchanged fields', async ({ page, trackProgram }) => {
+    test('Edit preserves unchanged fields', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -90,7 +90,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
   });
 
   test.describe('Negative', () => {
-    test('Cancel discards edits', async ({ page, trackProgram }) => {
+    test('Cancel discards edits', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -111,7 +111,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.programRowByName(unsavedName)).toHaveCount(0);
     });
 
-    test('Empty program name cannot be saved on edit', async ({ page, trackProgram }) => {
+    test('Empty program name cannot be saved on edit', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -128,7 +128,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.editProgramModal.saveButton).toBeDisabled();
     });
 
-    test('Whitespace-only program name is not saved on edit', async ({ page, trackProgram }) => {
+    test('Whitespace-only program name is not saved on edit', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -146,7 +146,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Save returns 503 and the edit is not applied', async ({ page, trackProgram }) => {
+    test('Save returns 503 and the edit is not applied', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -161,7 +161,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
     });
 
     for (const status of [401, 403, 404, 501, 502, 300] as const) {
-      test(`Save returns ${status} and the edit is not applied`, async ({ page, trackProgram }) => {
+      test(`Save returns ${status} and the edit is not applied`, { tag: '@regression' }, async ({ page, trackProgram }) => {
         const programsPage = new ProgramsPage(page);
         const suffix = Date.now();
         const programName = `Web Development 2026 ${suffix}`;
@@ -177,7 +177,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
     }
 
     for (const status of [401, 403, 404, 501, 502, 300] as const) {
-      test(`List returns ${status} and no program is offered for editing`, async ({ page }) => {
+      test(`List returns ${status} and no program is offered for editing`, { tag: '@regression' }, async ({ page }) => {
         const programsPage = new ProgramsPage(page);
         await mockProgramsListGetStatus(page, status);
         await navigateProgramsAndAwaitListGet(page, programsPage);
@@ -187,7 +187,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       });
     }
 
-    test('List returns 200 with an empty list and no program is offered for editing', async ({
+    test('List returns 200 with an empty list and no program is offered for editing', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -198,7 +198,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.anyEditButton).toHaveCount(0);
     });
 
-    test('List returns 200 with a malformed body and the page stays usable', async ({ page }) => {
+    test('List returns 200 with a malformed body and the page stays usable', { tag: '@regression' }, async ({ page }) => {
       test.fail(true, 'Mocked GET list 200 not-json blanks the main area after response (DS-114)');
 
       const programsPage = new ProgramsPage(page);
@@ -213,7 +213,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('Renaming to an existing program name is rejected', async ({ page, trackProgram }) => {
+    test('Renaming to an existing program name is rejected', { tag: '@regression' }, async ({ page, trackProgram }) => {
       test.fail(true, 'Didaxis accepts duplicate program names on edit (DS-3)');
 
       const programsPage = new ProgramsPage(page);
@@ -251,7 +251,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('Special characters in the edited name are saved unchanged', async ({ page, trackProgram }) => {
+    test('Special characters in the edited name are saved unchanged', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -279,7 +279,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       await expect(programsPage.programRowByName(updatedName)).toHaveCount(1);
     });
 
-    test('Clearing the description saves an empty description', async ({ page, trackProgram }) => {
+    test('Clearing the description saves an empty description', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;
@@ -296,7 +296,7 @@ test.describe('DS-257 Valeria - Edit existing program details', () => {
       ).toHaveCount(0);
     });
 
-    test('Save with no changes keeps program data intact', async ({ page, trackProgram }) => {
+    test('Save with no changes keeps program data intact', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `Web Development 2026 ${suffix}`;

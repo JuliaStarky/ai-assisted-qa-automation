@@ -35,7 +35,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('TC-001 — Accept program name with special characters', async ({ page, trackProgram }, testInfo) => {
+    test('TC-001 — Accept program name with special characters', { tag: '@smoke' }, async ({ page, trackProgram }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Informatique & IA - Niveau 2-${uniqueSuffix(testInfo)}`;
       const description = `Programme bilingue-${uniqueSuffix(testInfo)}`;
@@ -44,7 +44,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('TC-002 — Accept a single-character program name', async ({ page, trackProgram }, testInfo) => {
+    test('TC-002 — Accept a single-character program name', { tag: '@sanity' }, async ({ page, trackProgram }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const programName = `X-${uniqueSuffix(testInfo)}`;
 
@@ -58,7 +58,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('TC-003 — Leading and trailing spaces are trimmed before saving', async ({
+    test('TC-003 — Leading and trailing spaces are trimmed before saving', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -88,7 +88,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('TC-004 — Reject program name with only whitespace', async ({ page }) => {
+    test('TC-004 — Reject program name with only whitespace', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       let createPostSeen = false;
       const onRequest = (request: { url: () => string; method: () => string }) => {
@@ -108,7 +108,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       page.off('request', onRequest);
     });
 
-    test('TC-005 — Reject empty program name', async ({ page }, testInfo) => {
+    test('TC-005 — Reject empty program name', { tag: '@regression' }, async ({ page }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.openNewProgramForm();
       await programsPage.newProgramModal.fillDescription(`Name missing-${uniqueSuffix(testInfo)}`);
@@ -116,7 +116,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('TC-006 — Reject duplicate program name', async ({ page, trackProgram }, testInfo) => {
+    test('TC-006 — Reject duplicate program name', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       test.fail(
         true,
         'Didaxis allows duplicate program names on create (DS-122 / DS-133 / DS-137)',
@@ -145,7 +145,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('TC-007 — Reject case-variant duplicate program name', async ({ page, trackProgram }, testInfo) => {
+    test('TC-007 — Reject case-variant duplicate program name', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       test.fail(true, 'Didaxis allows case-variant duplicate program names (DS-146 / DS-190)');
 
       const programsPage = new ProgramsPage(page);
@@ -171,7 +171,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       expect(response.ok()).toBe(false);
     });
 
-    test('TC-008 — Reject renaming a program to an existing name', async ({
+    test('TC-008 — Reject renaming a program to an existing name', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -211,7 +211,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(editTarget)).toHaveCount(1);
     });
 
-    test('TC-009 — Whitespace-only name cannot be saved on edit', async ({
+    test('TC-009 — Whitespace-only name cannot be saved on edit', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -232,7 +232,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.editProgramModal.saveButton).toBeDisabled();
     });
 
-    test('TC-010 — Save returns 503 and the form stays open', async ({ page }, testInfo) => {
+    test('TC-010 — Save returns 503 and the form stays open', { tag: '@regression' }, async ({ page }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Save Error 503-${uniqueSuffix(testInfo)}`;
 
@@ -258,7 +258,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       { tc: 'TC-016', status: 300 },
     ];
     for (const { tc, status } of saveErrorStatuses) {
-      test(`${tc} — Save returns ${status} and the form stays open`, async ({ page }, testInfo) => {
+      test(`${tc} — Save returns ${status} and the form stays open`, { tag: '@regression' }, async ({ page }, testInfo) => {
         const programsPage = new ProgramsPage(page);
         const programName = `Save Error ${status}-${uniqueSuffix(testInfo)}`;
 
@@ -284,7 +284,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('TC-017 — Program name of exactly 255 characters is accepted', async ({
+    test('TC-017 — Program name of exactly 255 characters is accepted', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -303,7 +303,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('TC-018 — Program name of 256 characters is rejected', async ({ page, trackProgram }, testInfo) => {
+    test('TC-018 — Program name of 256 characters is rejected', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       test.fail(true, 'Didaxis accepts 256-character program names (DS-138)');
 
       const programsPage = new ProgramsPage(page);
@@ -322,7 +322,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('TC-019 — Empty program list does not block creating a new name', async ({ page }) => {
+    test('TC-019 — Empty program list does not block creating a new name', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -334,7 +334,7 @@ test.describe('DS-266 Program name validation and duplicate prevention', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('TC-020 — Malformed program list body renders nothing', async ({ page }) => {
+    test('TC-020 — Malformed program list body renders nothing', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
       const listResponse = page.waitForResponse(

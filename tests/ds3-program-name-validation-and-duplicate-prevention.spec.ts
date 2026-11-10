@@ -13,7 +13,7 @@ test.describe('Positive flows', () => {
     await expectProgramsPageReady(programsPage);
   });
 
-  test('TC-001 — Valid program name with special characters is accepted', async ({ page }) => {
+  test('TC-001 — Valid program name with special characters is accepted', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Informatique & IA - Niveau 2-${Date.now()}`;
     const description = `Programme bilingue sciences et IA-${Date.now()}`;
@@ -23,7 +23,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-002 — Standard alphanumeric program name is accepted', async ({ page }) => {
+  test('TC-002 — Standard alphanumeric program name is accepted', { tag: '@smoke' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Cloud Engineering 2026-${Date.now()}`;
 
@@ -32,7 +32,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-003 — Trimmed name with leading and trailing spaces saves as normalized name', async ({
+  test('TC-003 — Trimmed name with leading and trailing spaces saves as normalized name', { tag: '@sanity' }, async ({
     page,
   }) => {
     const programsPage = new ProgramsPage(page);
@@ -52,7 +52,7 @@ test.describe('Negative flows', () => {
     await expectProgramsPageReady(programsPage);
   });
 
-  test('TC-004 — Whitespace-only program name is not submitted', async ({ page }) => {
+  test('TC-004 — Whitespace-only program name is not submitted', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.openNewProgramForm();
     await programsPage.newProgramModal.fillProgramName('   ');
@@ -61,7 +61,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.newProgramModal.createButton).toBeDisabled();
   });
 
-  test('TC-005 — Empty program name is not submitted', async ({ page }) => {
+  test('TC-005 — Empty program name is not submitted', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.openNewProgramForm();
     await programsPage.newProgramModal.fillDescription(`Description only-${Date.now()}`);
@@ -69,7 +69,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.newProgramModal.createButton).toBeDisabled();
   });
 
-  test('TC-006 — Duplicate program name shows error and does not create second program', async ({
+  test('TC-006 — Duplicate program name shows error and does not create second program', { tag: '@regression' }, async ({
     page,
   }) => {
     test.fail(true, 'Didaxis allows duplicate program names on create (DS-3 AC gap)');
@@ -90,7 +90,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.newProgramModal.heading).not.toBeVisible();
   });
 
-  test('TC-007 — Duplicate check applies after trim (whitespace-padded duplicate)', async ({
+  test('TC-007 — Duplicate check applies after trim (whitespace-padded duplicate)', { tag: '@regression' }, async ({
     page,
   }) => {
     test.fail(true, 'Didaxis allows duplicate names; no trim-aware duplicate check (DS-3 AC gap)');
@@ -106,7 +106,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
-  test('TC-008 — Invalid name must not partially persist on failed create', async ({ page }) => {
+  test('TC-008 — Invalid name must not partially persist on failed create', { tag: '@regression' }, async ({ page }) => {
     test.fail(true, 'Duplicate create succeeds today; list count increases (DS-3 AC gap)');
 
     const programsPage = new ProgramsPage(page);
@@ -122,7 +122,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(countBefore);
   });
 
-  test('TC-009 — Rename to existing name is rejected on edit', async ({ page }) => {
+  test('TC-009 — Rename to existing name is rejected on edit', { tag: '@regression' }, async ({ page }) => {
     test.fail(true, 'Didaxis allows rename to an existing program name (DS-3 implied edit rule)');
 
     const programsPage = new ProgramsPage(page);
@@ -150,7 +150,7 @@ test.describe('Edge cases', () => {
     await expectProgramsPageReady(programsPage);
   });
 
-  test('TC-010 — Program name at maximum allowed length is accepted', async ({ page }) => {
+  test('TC-010 — Program name at maximum allowed length is accepted', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const suffix = String(Date.now());
     const programName = `${'N'.repeat(255 - suffix.length)}${suffix}`;
@@ -161,7 +161,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-011 — Program name over maximum length is rejected', async ({ page }) => {
+  test('TC-011 — Program name over maximum length is rejected', { tag: '@regression' }, async ({ page }) => {
     test.fail(true, 'Didaxis accepts 256-character program names (DS-3 ambiguity #6)');
 
     const programsPage = new ProgramsPage(page);
@@ -177,7 +177,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
-  test('TC-012 — Unicode and accented characters in program name', async ({ page }) => {
+  test('TC-012 — Unicode and accented characters in program name', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Programme été — München 2026-${Date.now()}`;
 
@@ -186,7 +186,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-013 — Emoji in program name (policy-dependent)', async ({ page }) => {
+  test('TC-013 — Emoji in program name (policy-dependent)', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `STEM Track 🎓 2026-${Date.now()}`;
 
@@ -195,7 +195,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-014 — Duplicate name case sensitivity', async ({ page }) => {
+  test('TC-014 — Duplicate name case sensitivity', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Web Development 2026-${Date.now()}`;
     const lowerCaseName = programName.toLowerCase();
@@ -209,7 +209,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(lowerCaseName)).toHaveCount(1);
   });
 
-  test('TC-015 — HTML or script-like strings are handled safely', async ({ page }) => {
+  test('TC-015 — HTML or script-like strings are handled safely', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Test <b>Name</b>-${Date.now()}`;
     const dialogShown = await runWithNativeDialogWatcher(page, async () => {
@@ -222,7 +222,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programNameInRow(programName)).toBeVisible();
   });
 
-  test('TC-016 — Tabs and newline characters in program name', async ({ page }) => {
+  test('TC-016 — Tabs and newline characters in program name', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `QA\tProgram-${Date.now()}`;
 
@@ -234,7 +234,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.tabCharacterNameOutcomeIndicator(programName)).toBeVisible();
   });
 
-  test('TC-017 — Same name allowed after original program deleted (if delete exists)', async ({
+  test('TC-017 — Same name allowed after original program deleted (if delete exists)', { tag: '@regression' }, async ({
     page,
   }) => {
     test.skip(true, 'Delete confirmation flow is not reliably exposed for automation in test env');

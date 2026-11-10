@@ -10,7 +10,7 @@ function isCreateSemesterPost(url: string, method: string) {
 }
 
 test.describe('Add a semester to a program from the Programs page', () => {
-  test('Admin adds a semester to a newly created program', async ({ page, trackProgram }) => {
+  test('Admin adds a semester to a newly created program', { tag: '@e2e' }, async ({ page, trackProgram }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Semester Flow Program-${Date.now()}`;
     const description = `Semester flow seed-${Date.now()}`;
@@ -57,7 +57,7 @@ test.describe('Add a semester to a program from the Programs page', () => {
     await expect(programsPage.noSemestersMessage).toBeHidden();
   });
 
-  test('Create Semester stays disabled until name and both dates are set, and Cancel saves nothing', async ({
+  test('Create Semester stays disabled until name and both dates are set, and Cancel saves nothing', { tag: '@regression' }, async ({
     page,
     trackProgram,
   }) => {

@@ -13,7 +13,7 @@ import {
 
 test.describe('DS-261 No error message shown when program delete API fails', () => {
   test.describe('Happy paths', () => {
-    test('Failed delete with HTTP 500 keeps the program and shows an error', async ({
+    test('Failed delete with HTTP 500 keeps the program and shows an error', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -35,7 +35,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.userVisibleErrorFeedback()).toBeVisible();
     });
 
-    test('Successful delete still removes the program', async ({ page, trackProgram }) => {
+    test('Successful delete still removes the program', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -55,7 +55,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
   });
 
   test.describe('Negative', () => {
-    test('Cancelled delete does not show a delete-failure error', async ({ page, trackProgram }) => {
+    test('Cancelled delete does not show a delete-failure error', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -73,7 +73,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.userVisibleErrorFeedback()).toBeHidden();
     });
 
-    test('Unauthorized delete keeps the program', async ({ page, trackProgram }) => {
+    test('Unauthorized delete keeps the program', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -92,7 +92,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Delete is not sent when confirmation is dismissed', async ({ page, trackProgram }) => {
+    test('Delete is not sent when confirmation is dismissed', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
 
@@ -124,7 +124,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
   });
 
   test.describe('Edge cases', () => {
-    test('Failed delete of a special-character name keeps that program', async ({
+    test('Failed delete of a special-character name keeps that program', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -146,7 +146,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.userVisibleErrorFeedback()).toBeVisible();
     });
 
-    test('Failed delete of the only program does not show the empty state', async ({
+    test('Failed delete of the only program does not show the empty state', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -168,7 +168,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.exactEmptyStateMessage).toBeHidden();
     });
 
-    test('A second failed delete still keeps the program', async ({ page, trackProgram }) => {
+    test('A second failed delete still keeps the program', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -192,7 +192,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
   });
 
   test.describe('API outcomes', () => {
-    test('Delete save returns HTTP 503', async ({ page, trackProgram }) => {
+    test('Delete save returns HTTP 503', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -211,7 +211,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list returns HTTP 200 with an empty list', async ({ page }) => {
+    test('Program list returns HTTP 200 with an empty list', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -221,7 +221,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list returns HTTP 200 with a malformed body', async ({ page }) => {
+    test('Program list returns HTTP 200 with a malformed body', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
       await programsPage.goto();
@@ -229,7 +229,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.programListRows()).toHaveCount(0);
     });
 
-    test('Program list or delete returns HTTP 403', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 403', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -248,7 +248,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 404', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 404', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -267,7 +267,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 501', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 501', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -286,7 +286,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 502', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 502', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -305,7 +305,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 300', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 300', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 

@@ -4,7 +4,7 @@ import { ProgramsPage } from '../pages/ProgramsPage';
 import { expectProgramsPageReady } from './support/programs-flow.helpers';
 
 test.describe('DS-266 Programs page accessibility', () => {
-  test('axe scan of Programs page (wcag2a, wcag2aa)', async ({ page }) => {
+  test('axe scan of Programs page (wcag2a, wcag2aa)', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.goto();
     await expectProgramsPageReady(programsPage);
@@ -16,7 +16,7 @@ test.describe('DS-266 Programs page accessibility', () => {
     await expect(results.violations).toEqual([]);
   });
 
-  test('keyboard tab to New Program then Enter opens dialog', async ({ page }) => {
+  test('keyboard tab to New Program then Enter opens dialog', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.goto();
     await expectProgramsPageReady(programsPage);

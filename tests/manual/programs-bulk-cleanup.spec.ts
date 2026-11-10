@@ -84,7 +84,7 @@ function writeProgramIdsSnapshot(programIds: string[]): void {
 
 test.describe.configure({ mode: 'serial' });
 
-test('GET /api/programs — inventory and optional bulk delete', async ({ page }) => {
+test('GET /api/programs — inventory and optional bulk delete', { tag: '@api' }, async ({ page }) => {
   const token = await resolveBearerToken(page);
 
   const programIds: string[] = await fetchProgramIds(token, baseUrl);

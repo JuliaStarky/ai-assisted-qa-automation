@@ -5,7 +5,7 @@ import { expectProgramsPageReady } from './support/programs-flow.helpers';
 import { reportA11yFinding, reportAxeViolations } from './support/a11y.helpers';
 
 test.describe('Programs page accessibility', () => {
-  test('axe scan of Programs page (wcag2a, wcag2aa)', async ({ page }, testInfo) => {
+  test('axe scan of Programs page (wcag2a, wcag2aa)', { tag: '@regression' }, async ({ page }, testInfo) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.goto();
     await expectProgramsPageReady(programsPage);
@@ -24,7 +24,7 @@ test.describe('Programs page accessibility', () => {
     }
   });
 
-  test('keyboard tab to New Program then Enter opens dialog', async ({ page }, testInfo) => {
+  test('keyboard tab to New Program then Enter opens dialog', { tag: '@regression' }, async ({ page }, testInfo) => {
     const programsPage = new ProgramsPage(page);
     await programsPage.goto();
     await expectProgramsPageReady(programsPage);

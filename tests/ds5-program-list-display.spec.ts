@@ -16,7 +16,7 @@ import {
 
 test.describe('DS-5 Program list display', () => {
   test.describe('Positive flows', () => {
-    test('TC-001 — Display program list with key details', async ({ page }) => {
+    test('TC-001 — Display program list with key details', { tag: '@smoke' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.goto();
       await expectProgramsPageReady(programsPage);
@@ -28,7 +28,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.firstProgramListRow()).toBeVisible();
     });
 
-    test('TC-002 — Newly created program appears at top with name and description', async ({
+    test('TC-002 — Newly created program appears at top with name and description', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }) => {
@@ -45,7 +45,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.firstProgramListRow()).toContainText(programName);
     });
 
-    test('TC-003 — Empty state when no programs exist', async ({ page }) => {
+    test('TC-003 — Empty state when no programs exist', { tag: '@sanity' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -55,7 +55,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.programListRows()).toHaveCount(0);
     });
 
-    test('TC-004 — Empty state Create Program opens New Program form', async ({ page }) => {
+    test('TC-004 — Empty state Create Program opens New Program form', { tag: '@sanity' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -67,7 +67,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.newProgramModal.heading).toBeVisible();
     });
 
-    test('TC-005 — Program list persists after page refresh', async ({ page, trackProgram }) => {
+    test('TC-005 — Program list persists after page refresh', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Data Science Fundamentals-${Date.now()}`;
       const description = `Introductory data science track-${Date.now()}`;
@@ -80,7 +80,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-006 — Admin can manage each listed program', async ({ page, trackProgram }) => {
+    test('TC-006 — Admin can manage each listed program', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Cloud Engineering 2026-${Date.now()}`;
 
@@ -98,7 +98,7 @@ test.describe('DS-5 Program list display', () => {
   });
 
   test.describe('Negative flows', () => {
-    test('TC-007 — Failed program list load shows error instead of empty state', async ({ page }) => {
+    test('TC-007 — Failed program list load shows error instead of empty state', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListServerError(page);
       await programsPage.goto();
@@ -108,7 +108,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.exactEmptyStateMessage).toBeHidden();
     });
 
-    test('TC-008 — Malformed program list response does not blank the page', async ({ page }) => {
+    test('TC-008 — Malformed program list response does not blank the page', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
       await programsPage.goto();
@@ -121,7 +121,7 @@ test.describe('DS-5 Program list display', () => {
     test.describe('Unauthenticated access', () => {
       test.use({ storageState: { cookies: [], origins: [] } });
 
-      test('TC-009 — Unauthenticated user is redirected away from program list', async ({
+      test('TC-009 — Unauthenticated user is redirected away from program list', { tag: '@regression' }, async ({
         page,
       }) => {
         const programsPage = new ProgramsPage(page);
@@ -135,7 +135,7 @@ test.describe('DS-5 Program list display', () => {
       });
     });
 
-    test('TC-010 — Empty state is not shown when programs exist', async ({ page, trackProgram }) => {
+    test('TC-010 — Empty state is not shown when programs exist', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Cybersecurity Bootcamp-${Date.now()}`;
 
@@ -153,7 +153,7 @@ test.describe('DS-5 Program list display', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('TC-011 — Duplicate program names remain distinguishable by description', async ({
+    test('TC-011 — Duplicate program names remain distinguishable by description', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -186,7 +186,7 @@ test.describe('DS-5 Program list display', () => {
       ).toBeVisible();
     });
 
-    test('TC-012 — Program with empty description still appears in the list', async ({
+    test('TC-012 — Program with empty description still appears in the list', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -220,7 +220,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.textInProgramRow(programName, otherDescription)).toHaveCount(0);
     });
 
-    test('TC-013 — Special characters in name and description are displayed exactly', async ({
+    test('TC-013 — Special characters in name and description are displayed exactly', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -234,7 +234,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-014 — Unicode and emoji in name and description are displayed', async ({
+    test('TC-014 — Unicode and emoji in name and description are displayed', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -248,7 +248,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-015 — Maximum-length program name remains readable in the list', async ({
+    test('TC-015 — Maximum-length program name remains readable in the list', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -278,7 +278,7 @@ test.describe('DS-5 Program list display', () => {
       }
     });
 
-    test('TC-016 — HTML in program description is shown as text, not executed', async ({
+    test('TC-016 — HTML in program description is shown as text, not executed', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -292,7 +292,7 @@ test.describe('DS-5 Program list display', () => {
       await expect(programsPage.injectedImageInProgramRow(programName, description)).toHaveCount(0);
     });
 
-    test('TC-017 — Newly created program is findable in a large existing list', async ({
+    test('TC-017 — Newly created program is findable in a large existing list', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {

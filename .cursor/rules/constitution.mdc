@@ -1,0 +1,68 @@
+---
+description: Always-on Playwright constitution — MUST, SHOULD, WON'T, and agent governance
+alwaysApply: true
+---
+
+# Playwright constitution
+
+Short standard for every task. Detail lives in `.cursor/rules/playwright-conventions.mdc`.
+
+## MUST
+
+| Rule | How |
+| --- | --- |
+| Role-based locators | `getByRole`, then `getByLabel` / `getByPlaceholder`, then `getByText`, then `getByTestId` with a comment; disambiguate with `.filter({ hasText })` |
+| Web-first assertions | Retrying `expect(locator).toBeVisible()` / `.toBeEnabled()` / `.toHaveText()` in the spec |
+| storageState auth | Feature tests start from the setup project's `playwright/.auth/user.json`; a login test clears that state and signs in through `LoginPage` |
+| Unique self-cleaning data | Unique names; import `test` from `fixtures/cleanup.fixture.ts` and call `trackProgram(uuid)` as soon as the record exists |
+| One tag per test | Exactly one of `@smoke`, `@sanity`, `@regression`, `@api`, `@e2e`, `@destructive` on each `test()`. `@destructive` only when the test changes locale, roles, flags, or settings, with an `afterEach` or `afterAll` that restores them. A test that only cleans up its own data keeps its importance tag |
+
+## SHOULD
+
+| Rule | How |
+| --- | --- |
+| Faker factories | Happy-path data comes from a factory under `test-data/factories`. Invalid values stay in a static `.ts` file. Secrets and URLs come from `process.env` |
+| Enums for repeated strings | Put a string used in more than one file in an enum |
+| JSDoc on action methods | Document each page-object action with a one-line JSDoc |
+
+## WON'T
+
+| Refuse | Stop because |
+| --- | --- |
+| XPath | A DOM-order locator clicks the wrong control after a restyle |
+| `waitForTimeout` | A fixed sleep races the clock |
+| Hardcoded secrets | A credential in source leaks into git |
+| The `any` type | It hides the shape the assertion depends on |
+| Weakened assertions | Dropping or softening an `expect` makes a failure look green |
+| Healing a real bug | A defect triage classified as an app bug is filed; the locator stays |
+| Tags on `describe` | A tag belongs on the single `test`, so one test is one filter |
+
+## Agent governance
+
+Behavioral contract for every non-trivial task. Nothing in this section is hook-enforced.
+
+A task is non-trivial when it edits files, picks a design, or depends on a name that is not already in the request.
+
+### Audit, then edit
+
+Read the files and conventions the change touches. Emit this block before any edit:
+
+```
+Proposal
+- Scope: files and behavior this task will change
+- Confidence: 1-10
+- Rationale: why this scope and this score
+- Unknowns: what is still unverified, or none
+```
+
+### Confidence gate
+
+| Score | Do |
+| --- | --- |
+| below 5 | Stop. Ask for the missing input. Do not edit. |
+| 5-7 | Proceed only with the unknowns listed and a human's approval |
+| 8 or above | Proceed |
+
+Never invent a path, enum, env var, credential, or message. Ask, or explore the repo, the ticket, and the environment, and use only a value that is already there.
+
+**Index:** skills — a11y-checks, api-cleanup, ci-failure-triage, explore-and-generate, exploratory-charter, jira-bug-reporter, jira-ticket-to-gherkin, pom-conventions, self-heal; agents — bug-reporter, test-writer, triage.

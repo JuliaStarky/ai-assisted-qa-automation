@@ -25,7 +25,7 @@ async function expectProgramsPageReadyWithListLoad(programsPage: ProgramsPage) {
 
 test.describe('DS-269 Program list filtering and display', () => {
   test.describe('Happy paths', () => {
-    test('TC-001 — Display program list with key details', async ({ page, trackProgram }, testInfo) => {
+    test('TC-001 — Display program list with key details', { tag: '@smoke' }, async ({ page, trackProgram }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const suffix = uniqueSuffix(testInfo);
       const programName = `Web Development 2026-${suffix}`;
@@ -49,7 +49,7 @@ test.describe('DS-269 Program list filtering and display', () => {
       await expect(programsPage.deleteButton(programName)).toBeVisible();
     });
 
-    test('TC-002 — Newly created program appears at the top of the list', async ({
+    test('TC-002 — Newly created program appears at the top of the list', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -65,7 +65,7 @@ test.describe('DS-269 Program list filtering and display', () => {
       await expect(programsPage.firstProgramListRow()).toContainText(programName, { timeout: 15_000 });
     });
 
-    test('TC-003 — Empty state when no programs exist', async ({ page }) => {
+    test('TC-003 — Empty state when no programs exist', { tag: '@sanity' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -80,7 +80,7 @@ test.describe('DS-269 Program list filtering and display', () => {
   });
 
   test.describe('Negative flows', () => {
-    test('TC-004 — Empty state is not shown when programs exist', async ({
+    test('TC-004 — Empty state is not shown when programs exist', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -100,7 +100,7 @@ test.describe('DS-269 Program list filtering and display', () => {
       await expect(programsPage.exactEmptyStateMessage).toBeHidden();
     });
 
-    test('TC-005 — Malformed program list body renders nothing', async ({ page }) => {
+    test('TC-005 — Malformed program list body renders nothing', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
       const listResponse = waitForProgramsListGet(page);
@@ -113,7 +113,7 @@ test.describe('DS-269 Program list filtering and display', () => {
       await expect(programsPage.loadErrorMessage).toBeHidden();
     });
 
-    test('TC-006 — List request returns 503 and the empty state is shown', async ({ page }) => {
+    test('TC-006 — List request returns 503 and the empty state is shown', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListStatus(page, 503);
       await programsPage.goto();
@@ -135,7 +135,7 @@ test.describe('DS-269 Program list filtering and display', () => {
     ];
 
     for (const { tc, status } of listErrorStatuses) {
-      test(`${tc} — List request returns ${status} and the empty state is shown`, async ({
+      test(`${tc} — List request returns ${status} and the empty state is shown`, { tag: '@regression' }, async ({
         page,
       }) => {
         const programsPage = new ProgramsPage(page);
@@ -152,7 +152,7 @@ test.describe('DS-269 Program list filtering and display', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('TC-013 — Program without a description shows only its name', async ({
+    test('TC-013 — Program without a description shows only its name', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -178,7 +178,7 @@ test.describe('DS-269 Program list filtering and display', () => {
       await expect(programsPage.paragraphsInProgramRow(programName)).toHaveText(programName);
     });
 
-    test('TC-014 — Special characters display unchanged in the list', async ({
+    test('TC-014 — Special characters display unchanged in the list', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -204,7 +204,7 @@ test.describe('DS-269 Program list filtering and display', () => {
       ).toHaveCount(0);
     });
 
-    test('TC-015 — Programs page has no search or filter control', async ({ page }) => {
+    test('TC-015 — Programs page has no search or filter control', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.goto({ waitForNetworkIdle: true });
       await expectProgramsPageReadyWithListLoad(programsPage);
@@ -214,7 +214,7 @@ test.describe('DS-269 Program list filtering and display', () => {
   });
 
   test.describe('Accessibility', () => {
-    test('TC-016 — axe scan of empty-state Programs view (wcag2a, wcag2aa)', async ({ page }) => {
+    test('TC-016 — axe scan of empty-state Programs view (wcag2a, wcag2aa)', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();

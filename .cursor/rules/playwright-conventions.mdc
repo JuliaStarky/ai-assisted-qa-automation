@@ -104,6 +104,63 @@ await page.getByLabel('Password').fill('hardcoded-password');
 
 ## 5. Test data
 
+Happy-path values come from a Faker factory under `test-data/factories`. Invalid values live in a static `.ts` file, so a generated string cannot accidentally become valid. Secrets and URLs come from `process.env`. A path or message used in more than one file comes from an enum.
+
+✅ Good (`test-data/factories/program.factory.ts`):
+
+```typescript
+import { faker } from '@faker-js/faker';
+
+export type ProgramDraft = {
+  name: string;
+  description: string;
+};
+
+/** Happy-path program fields. The suffix keeps the name unique across workers. */
+export function buildProgram(overrides: Partial<ProgramDraft> = {}): ProgramDraft {
+  const suffix = faker.string.alphanumeric(8);
+  return {
+    name: overrides.name ?? `Web Development ${suffix}`,
+    description: overrides.description ?? faker.lorem.sentence(),
+  };
+}
+```
+
+Curated invalid set (`test-data/programs.invalid.ts`):
+
+```typescript
+export const invalidProgramNames = {
+  empty: '',
+  whitespace: '   ',
+  tooLong: 'A'.repeat(256),
+} as const;
+```
+
+Repeated path, once a second file needs the same string:
+
+```typescript
+export enum ProgramPath {
+  List = '/programs',
+  Collection = '/api/programs',
+}
+```
+
+```typescript
+const token = process.env.DIDAXIS_API_TOKEN;
+const baseURL = process.env.DIDAXIS_URL;
+```
+
+❌ Bad:
+
+```typescript
+const programName = `Web Development ${Date.now()}`;
+await page.getByLabel('Password').fill('hardcoded-password');
+```
+
+**Why:** a copied timestamp drifts between specs, a hardcoded password lands in git, and a Faker value meant to be invalid can come out valid.
+
+### Cleanup
+
 A test that creates a program imports `test` from `fixtures/cleanup.fixture.ts` and calls `trackProgram(uuid)` immediately; the fixture sends `DELETE /api/programs/<uuid>` with `Authorization: Bearer` from `DIDAXIS_API_TOKEN`.
 
 ✅ Good (`tests/ds1-create-new-academic-program.spec.ts`):
@@ -229,7 +286,7 @@ expect(await programsPage.programRowByName(programName).count()).toBe(1);
 
 ## 10. Anti-flake
 
-Keep `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`, `baseURL` from `process.env.DIDAXIS_URL`, `trace: 'on-first-retry'`, `locale: 'en-CA'`, and `timezoneId: 'America/Toronto'`, with the `setup` project and `storageState` dependency left in place; do not raise retries above 2 or set `workers: 1`. Freeze a relative timestamp with `page.clock.install()` before the page object navigates.
+Keep `fullyParallel: true`, `retries: process.env.CI ? 2 : 0`, `baseURL` from `process.env.DIDAXIS_URL`, `trace: 'on-first-retry'`, `locale: 'en-CA'`, and `timezoneId: 'America/Toronto'`, with the `setup` project and `storageState` dependency left in place; do not raise retries above 2 or set `workers: 1` in this config. `npm run test:destructive` is the only command that passes `--workers=1`. Freeze a relative timestamp with `page.clock.install()` before the page object navigates.
 
 **Advised** — no spec installs a clock yet.
 
@@ -252,7 +309,55 @@ workers: 1,
 await expect(page.getByText(/ago/)).toBeVisible();
 ```
 
-**Why:** retries above 2 and `workers: 1` hide a broken or order-dependent test, and an unfrozen "ago" string changes between a laptop and CI.
+**Why:** retries above 2 and `workers: 1` in this config hide a broken or order-dependent test, and an unfrozen "ago" string changes between a laptop and CI. Shared settings are the exception: they run only under `npm run test:destructive`.
+
+## 11. Tags
+
+Each `test()` carries exactly one of `@smoke`, `@sanity`, `@regression`, `@api`, `@e2e`, or `@destructive`. The tag sits on the test, never on `describe`.
+
+| Tag | Use it for |
+| --- | --- |
+| `@smoke` | The one critical happy path of a feature |
+| `@sanity` | The other happy-path checks in that feature |
+| `@regression` | Negative cases, edge cases, mocked failures, and accessibility |
+| `@api` | A test whose assertion is the HTTP API |
+| `@e2e` | A browser journey that crosses features, such as creating a program and then adding a semester |
+| `@destructive` | A test that changes locale, roles, flags, or settings |
+
+`@destructive` is only that last case, and those tests run serially. A test that creates a program and deletes it with `trackProgram` keeps `@smoke`, `@sanity`, `@regression`, `@api`, or `@e2e`.
+
+Any test that changes locale, roles, flags, or settings restores the previous value in `test.afterEach` or `test.afterAll`. Run that set with `npm run test:destructive` (`--workers=1`). A file with more than one of them also sets `test.describe.configure({ mode: 'serial' })`.
+
+**Advised** — no spec changes locale, roles, flags, or settings yet.
+
+✅ Good:
+
+```typescript
+test.describe.configure({ mode: 'serial' });
+
+test.afterEach(async ({ page }) => {
+  const settingsPage = new SettingsPage(page);
+  await settingsPage.restoreLocale('en-CA');
+});
+
+test('French locale is shown in the shell', { tag: '@destructive' }, async ({ page }) => {
+  const settingsPage = new SettingsPage(page);
+  await settingsPage.switchLocale('fr-CA');
+  await expect(settingsPage.heading).toHaveText('Programmes');
+});
+```
+
+❌ Bad:
+
+```typescript
+test.describe('programs', { tag: '@smoke' }, () => {
+  test('create then delete a program this test made', { tag: ['@e2e', '@destructive'] }, async () => {
+    await settingsPage.switchLocale('fr-CA');
+  });
+});
+```
+
+**Why:** a tag on `describe`, or two tags on one test, makes `--grep` run the wrong set. Deleting a program the test created is not a shared setting. Changing the locale without `afterEach` or `afterAll` leaves the next test in the wrong language.
 
 ## Do / Don't
 
@@ -263,9 +368,11 @@ await expect(page.getByText(/ago/)).toBeVisible();
 | `expect(locator).toBeVisible()` / `.toBeEnabled()` / `.toHaveText()` | `waitForTimeout`, or `expect(await locator.isVisible()).toBe(true)` |
 | Locators and actions in `pages/`; `expect` in `tests/` | Inline locators or assertions inside a page object |
 | `setup` + `storageState` for feature tests; empty `storageState` for the login page | A hardcoded password, or a UI login in a test that is not about login |
-| `fixtures/cleanup.fixture.ts` and `trackProgram(uuid)` | A manual `afterAll`, or deleting a program the test did not create |
+| A Faker factory in `test-data/factories` for happy-path data; invalid values in a static `.ts` file; secrets and URLs from `process.env`; a repeated path or message in an enum | A hardcoded password, the same invalid string pasted into each spec, or Faker for a value that must stay invalid |
+| `fixtures/cleanup.fixture.ts` and `trackProgram(uuid)` for a program the test created | A UI `afterAll` that deletes that program, or deleting a program the test did not create |
+| Exactly one of `@smoke`, `@sanity`, `@regression`, `@api`, `@e2e`, `@destructive` on `test()`; `@destructive` restores locale, roles, flags, or settings in `afterEach` or `afterAll` | A tag on `describe`, two tags on one test, or `@destructive` on a test that only deletes its own program |
 | Real API call, `Bearer` from `DIDAXIS_API_TOKEN`, `expect(response).toBeOK()` | Mocking the endpoint the test verifies, or a token in source |
 | `page.route` to force 503, empty 200, malformed 200, 401, 403, 404, 501, 502, 300; copy from the live page | Invented error text, or `trackProgram` after a fulfilled write that persisted nothing |
 | Axe `wcag2a` + `wcag2aa` with `toEqual([])`, and a separate keyboard test | `.disableRules()`, `.include()` / `.exclude()` without a comment, or two checks in one test |
 | Retrying matchers; same assertion meaning when a locator changes | A one-shot `.count()` or `.isVisible()` boolean |
-| `retries` 2 on CI and 0 locally; `en-CA` and `America/Toronto`; `page.clock.install()` for relative time | `workers: 1`, retries above 2, or wall-clock "ago" text |
+| `retries` 2 on CI and 0 locally; `en-CA` and `America/Toronto`; `page.clock.install()` for relative time; `--workers=1` only on `npm run test:destructive` | `workers: 1` in `playwright.config.ts`, retries above 2, or wall-clock "ago" text |

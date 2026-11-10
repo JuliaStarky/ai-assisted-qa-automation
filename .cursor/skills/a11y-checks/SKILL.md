@@ -47,7 +47,7 @@ Add (or keep) both in `tests/programs.a11y.spec.ts` (or equivalent):
 1. Axe scan of the Programs page with `withTags(['wcag2a','wcag2aa'])`.
 2. Keyboard: tab → primary control focused → Enter → New Program dialog open.
 
-One tag per test. Drive all interaction through existing POMs.
+Exactly one tag on each `test()`, and an accessibility test uses `@regression`. Drive all interaction through existing POMs.
 
 ## Violations — never silence to go green
 
@@ -67,7 +67,7 @@ Keep axe scans and keyboard asserts in specs, not POMs. POMs may expose `axeIncl
 - [ ] `AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa"]).analyze()`
 - [ ] `await expect(results.violations).toEqual([])`
 - [ ] Keyboard path with `toBeFocused()` + Enter opens dialog (where applicable)
-- [ ] POMs only; one tag per test
+- [ ] POMs only; exactly one `@regression` tag on each accessibility `test()`
 - [ ] No `.disableRules()` — real violations reported and work stopped
 
 **Reviewing:**

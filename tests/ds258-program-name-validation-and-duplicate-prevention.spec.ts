@@ -28,7 +28,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('Accept program name with special characters', async ({ page, trackProgram }, testInfo) => {
+    test('Accept program name with special characters', { tag: '@sanity' }, async ({ page, trackProgram }, testInfo) => {
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
       const programsPage = new ProgramsPage(page);
       const programName = `Informatique & IA - Niveau 2-${suffix}`;
@@ -49,7 +49,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Accept a unique program name', async ({ page, trackProgram }, testInfo) => {
+    test('Accept a unique program name', { tag: '@smoke' }, async ({ page, trackProgram }, testInfo) => {
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${suffix}`;
@@ -69,7 +69,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('Reject program name with only whitespace', async ({ page }, testInfo) => {
+    test('Reject program name with only whitespace', { tag: '@regression' }, async ({ page }, testInfo) => {
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
       const programsPage = new ProgramsPage(page);
 
@@ -86,7 +86,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.newProgramModal.heading).toBeVisible();
     });
 
-    test('Reject empty program name', async ({ page }, testInfo) => {
+    test('Reject empty program name', { tag: '@regression' }, async ({ page }, testInfo) => {
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
       const programsPage = new ProgramsPage(page);
 
@@ -96,7 +96,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('Reject duplicate program name', async ({ page, trackProgram }, testInfo) => {
+    test('Reject duplicate program name', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       test.fail(true, 'Didaxis allows duplicate program names on create (DS-122)');
 
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
@@ -123,7 +123,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Reject case-variant duplicate program name', async ({ page, trackProgram }, testInfo) => {
+    test('Reject case-variant duplicate program name', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       test.fail(true, 'Didaxis allows case-variant duplicate program names (DS-146)');
 
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
@@ -151,7 +151,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(lowercaseName)).toHaveCount(0);
     });
 
-    test('Reject duplicate program name padded with spaces', async ({ page, trackProgram }, testInfo) => {
+    test('Reject duplicate program name padded with spaces', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       test.fail(true, 'Didaxis allows trimmed duplicate program names on create (DS-122)');
 
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
@@ -178,7 +178,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Save returns 503 and nothing is created', async ({ page }, testInfo) => {
+    test('Save returns 503 and nothing is created', { tag: '@regression' }, async ({ page }, testInfo) => {
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
       const programsPage = new ProgramsPage(page);
       const programName = `Save Error 503-${suffix}`;
@@ -198,7 +198,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
     });
 
     for (const status of [401, 403, 404, 501, 502, 300] as const) {
-      test(`Save returns ${status} and nothing is created`, async ({ page }, testInfo) => {
+      test(`Save returns ${status} and nothing is created`, { tag: '@regression' }, async ({ page }, testInfo) => {
         const suffix = uniqueTestSuffix(testInfo.parallelIndex);
         const programsPage = new ProgramsPage(page);
         const programName = `Save Error ${status}-${suffix}`;
@@ -217,7 +217,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
     }
 
     for (const status of [401, 403, 404, 501, 502, 300] as const) {
-      test(`List returns ${status} and the creation form still validates names`, async ({
+      test(`List returns ${status} and the creation form still validates names`, { tag: '@regression' }, async ({
         page,
       }) => {
         const programsPage = new ProgramsPage(page);
@@ -231,7 +231,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       });
     }
 
-    test('List returns 200 with an empty list and the creation form still validates names', async ({
+    test('List returns 200 with an empty list and the creation form still validates names', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -244,7 +244,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('List returns 200 with a malformed body and the page stays usable', async ({ page }) => {
+    test('List returns 200 with a malformed body and the page stays usable', { tag: '@regression' }, async ({ page }) => {
       test.fail(
         true,
         'Didaxis main area goes blank after malformed GET /api/programs list response (DS-114)',
@@ -266,7 +266,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('Leading and trailing spaces are trimmed from a valid name', async ({
+    test('Leading and trailing spaces are trimmed from a valid name', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -287,7 +287,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       expect(body.data?.name).toBe(programName);
     });
 
-    test('Program name of 255 characters is accepted', async ({ page, trackProgram }, testInfo) => {
+    test('Program name of 255 characters is accepted', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
       const programsPage = new ProgramsPage(page);
       const programName = programNameOfExactLength(255, suffix);
@@ -303,7 +303,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Program name of 256 characters is rejected', async ({ page, trackProgram }, testInfo) => {
+    test('Program name of 256 characters is rejected', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       test.fail(true, 'Didaxis accepts 256-character program names (DS-138)');
 
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
@@ -320,7 +320,7 @@ test.describe('DS-258 Program name validation and duplicate prevention', () => {
       expect(response.ok()).toBe(false);
     });
 
-    test('Single-character program name is accepted', async ({ page, trackProgram }, testInfo) => {
+    test('Single-character program name is accepted', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       const suffix = uniqueTestSuffix(testInfo.parallelIndex);
       const programsPage = new ProgramsPage(page);
       const programName = `X-${suffix}`;

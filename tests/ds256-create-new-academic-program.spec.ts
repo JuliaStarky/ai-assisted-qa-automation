@@ -21,7 +21,7 @@ function uniqueName(acPrefix: string): string {
 
 test.describe('DS-256 Valeria - Create new academic program', () => {
   test.describe('Happy paths', () => {
-    test('Navigate to program creation form', async ({ page }) => {
+    test('Navigate to program creation form', { tag: '@sanity' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.goto();
       await expectProgramsPageReady(programsPage);
@@ -34,7 +34,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('Successfully create a program', async ({ page, trackProgram }) => {
+    test('Successfully create a program', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = uniqueName('Web Development 2026');
       const description = uniqueName('Full-stack web development program');
@@ -52,7 +52,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('Create a program with an empty description', async ({ page, trackProgram }) => {
+    test('Create a program with an empty description', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
       const programName = uniqueName('Cybersecurity Bootcamp');
 
@@ -67,7 +67,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Open the creation form from the empty state', async ({ page }) => {
+    test('Open the creation form from the empty state', { tag: '@sanity' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -82,7 +82,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
   });
 
   test.describe('Negative', () => {
-    test('Validation prevents empty program name', async ({ page }) => {
+    test('Validation prevents empty program name', { tag: '@regression' }, async ({ page }) => {
       const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
       await programsPage.newProgramModal.fillProgramName('');
       await programsPage.newProgramModal.fillDescription(
@@ -92,7 +92,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('Whitespace-only program name keeps Create disabled and sends nothing', async ({
+    test('Whitespace-only program name keeps Create disabled and sends nothing', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
@@ -107,7 +107,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.newProgramModal.heading).toBeVisible();
     });
 
-    test('Cancel discards the form without saving', async ({ page }) => {
+    test('Cancel discards the form without saving', { tag: '@regression' }, async ({ page }) => {
       const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
       const programName = uniqueName('Temporary Program');
       const description = uniqueName('Should not be saved');
@@ -120,7 +120,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('Save returns 503 and nothing is created', async ({ page }) => {
+    test('Save returns 503 and nothing is created', { tag: '@regression' }, async ({ page }) => {
       const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
       const programName = uniqueName('Save Error 503');
 
@@ -134,7 +134,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
     });
 
     for (const status of [401, 403, 404, 501, 502, 300] as const) {
-      test(`Save returns ${status} and nothing is created`, async ({ page }) => {
+      test(`Save returns ${status} and nothing is created`, { tag: '@regression' }, async ({ page }) => {
         const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
         const programName = uniqueName(`Save Error ${status}`);
 
@@ -149,7 +149,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
     }
 
     for (const status of [401, 403, 404, 501, 502, 300] as const) {
-      test(`List returns ${status} and the page stays usable for creating`, async ({ page }) => {
+      test(`List returns ${status} and the page stays usable for creating`, { tag: '@regression' }, async ({ page }) => {
         const programsPage = new ProgramsPage(page);
         await mockProgramsListStatus(page, status);
         await programsPage.goto();
@@ -163,7 +163,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       });
     }
 
-    test('List returns 200 with a malformed body and the page stays usable for creating', async ({
+    test('List returns 200 with a malformed body and the page stays usable for creating', { tag: '@regression' }, async ({
       page,
     }) => {
       test.fail(true, 'Malformed GET list response blanks main area (DS-114)');
@@ -176,7 +176,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('Duplicate program name is rejected', async ({ page, trackProgram }) => {
+    test('Duplicate program name is rejected', { tag: '@regression' }, async ({ page, trackProgram }) => {
       test.fail(
         true,
         'Didaxis test env allows duplicate program names without validation (DS-122)',
@@ -206,7 +206,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('Special characters in program name are saved unchanged', async ({ page, trackProgram }) => {
+    test('Special characters in program name are saved unchanged', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
       const programName = uniqueName('Informatique & IA - Niveau 2');
       const description = uniqueName('Programme bilingue');
@@ -223,7 +223,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Leading and trailing spaces in program name are trimmed on create', async ({
+    test('Leading and trailing spaces in program name are trimmed on create', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -241,7 +241,7 @@ test.describe('DS-256 Valeria - Create new academic program', () => {
       expect(body.data?.name).toBe(programName);
     });
 
-    test('Program name of 255 characters is accepted', async ({ page, trackProgram }) => {
+    test('Program name of 255 characters is accepted', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = await gotoProgramsAndOpenNewProgramForm(page);
       const suffix = ` ${Date.now()}`;
       const programName = `${'A'.repeat(255 - suffix.length)}${suffix}`;

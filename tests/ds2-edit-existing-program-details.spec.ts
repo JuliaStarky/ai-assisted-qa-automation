@@ -9,7 +9,7 @@ import {
 } from './support/programs-flow.helpers';
 
 test.describe('Positive flows', () => {
-  test('TC-001 — Edit form shows current program data', async ({ page }) => {
+  test('TC-001 — Edit form shows current program data', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Web Development 2026-${Date.now()}`;
     const description = `Full-stack web development program-${Date.now()}`;
@@ -24,7 +24,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.editProgramModal.defaultExamHours).toHaveValue('3');
   });
 
-  test('TC-002 — Updated program name appears in list after save', async ({ page }) => {
+  test('TC-002 — Updated program name appears in list after save', { tag: '@smoke' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Web Development 2026-${Date.now()}`;
     const updatedName = `Web Development 2026 - Updated-${Date.now()}`;
@@ -39,7 +39,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
-  test('TC-003 — Unchanged fields stay the same when only description is edited', async ({ page }) => {
+  test('TC-003 — Unchanged fields stay the same when only description is edited', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Data Science Fundamentals-${Date.now()}`;
     const originalDescription = `Introductory data science track-${Date.now()}`;
@@ -70,7 +70,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.editProgramModal.focusAreas).toHaveValue(focusAreas);
   });
 
-  test('TC-004 — Edit both name and description in one save', async ({ page }) => {
+  test('TC-004 — Edit both name and description in one save', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Mobile Development 2026-${Date.now()}`;
     const updatedName = `Mobile Development 2026 - Advanced-${Date.now()}`;
@@ -88,7 +88,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.editProgramModal.descriptionField).toHaveValue(updatedDescription);
   });
 
-  test('TC-005 — Dismiss edit form without saving changes', async ({ page }) => {
+  test('TC-005 — Dismiss edit form without saving changes', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Web Development 2026-${Date.now()}`;
     const description = `Original description-${Date.now()}`;
@@ -105,7 +105,7 @@ test.describe('Positive flows', () => {
     await expect(programsPage.programRowByName(unsavedName)).toHaveCount(0);
   });
 
-  test('TC-018 — Edit modal exposes extended program fields', async ({ page }) => {
+  test('TC-018 — Edit modal exposes extended program fields', { tag: '@sanity' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Extended Fields Probe-${Date.now()}`;
 
@@ -126,7 +126,7 @@ test.describe('Positive flows', () => {
 });
 
 test.describe('Negative flows', () => {
-  test('TC-006 — Empty name cannot be saved', async ({ page }) => {
+  test('TC-006 — Empty name cannot be saved', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Cybersecurity Bootcamp-${Date.now()}`;
 
@@ -139,7 +139,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-007 — Whitespace-only name is rejected on save', async ({ page }) => {
+  test('TC-007 — Whitespace-only name is rejected on save', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Cybersecurity Bootcamp-${Date.now()}`;
 
@@ -152,11 +152,11 @@ test.describe('Negative flows', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(1);
   });
 
-  test('TC-008 — Non-admin cannot edit program details', async () => {
+  test('TC-008 — Non-admin cannot edit program details', { tag: '@regression' }, async () => {
     test.skip(true, 'Requires a non-admin test account (not available in this environment)');
   });
 
-  test('TC-009 — Renaming to an existing program name is allowed', async ({ page }) => {
+  test('TC-009 — Renaming to an existing program name is allowed', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const existingName = `Web Development 2026-${Date.now()}`;
     const renameTarget = `Data Science Fundamentals-${Date.now()}`;
@@ -175,7 +175,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.programRowByName(existingName)).toHaveCount(2);
   });
 
-  test('TC-010 — Save fails when session expired', async ({ page }) => {
+  test('TC-010 — Save fails when session expired', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Session Edit Program-${Date.now()}`;
     const originalDescription = `Before session expiry-${Date.now()}`;
@@ -194,7 +194,7 @@ test.describe('Negative flows', () => {
     await expect(programsPage.editSessionExpiredFeedback()).toBeVisible();
   });
 
-  test('TC-011 — Save with no changes does not corrupt data', async ({ page }) => {
+  test('TC-011 — Save with no changes does not corrupt data', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Web Development 2026-${Date.now()}`;
     const description = `Unchanged description-${Date.now()}`;
@@ -210,7 +210,7 @@ test.describe('Negative flows', () => {
 });
 
 test.describe('Edge cases', () => {
-  test('TC-012 — Name at maximum allowed length after edit', async ({ page }) => {
+  test('TC-012 — Name at maximum allowed length after edit', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Max Length Seed-${Date.now()}`;
     const suffix = String(Date.now());
@@ -226,7 +226,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(maxName)).toHaveCount(1);
   });
 
-  test('TC-013 — Name at 256 characters is accepted', async ({ page }) => {
+  test('TC-013 — Name at 256 characters is accepted', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Original Name-${Date.now()}`;
     const suffix = String(Date.now());
@@ -244,7 +244,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
-  test('TC-014 — Special characters in edited name and description', async ({ page }) => {
+  test('TC-014 — Special characters in edited name and description', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `QA Program Pilot-${Date.now()}`;
     const updatedName = `QA & Testing — Cohort #1 (2026)-${Date.now()}`;
@@ -265,7 +265,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.editProgramModal.descriptionField).toHaveValue(updatedDescription);
   });
 
-  test('TC-015 — Leading and trailing spaces in name are preserved', async ({ page }) => {
+  test('TC-015 — Leading and trailing spaces in name are preserved', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Cloud Engineering 2026-${Date.now()}`;
     const paddedName = `  Cloud Engineering 2026 - Revised-${Date.now()}  `;
@@ -280,7 +280,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.programRowByName(programName)).toHaveCount(0);
   });
 
-  test('TC-016 — Double-click Save does not create duplicate programs', async ({ page }) => {
+  test('TC-016 — Double-click Save does not create duplicate programs', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Web Development 2026-${Date.now()}`;
     const newDescription = `Double save test-${Date.now()}`;
@@ -295,7 +295,7 @@ test.describe('Edge cases', () => {
     await expect(programsPage.descriptionInProgramRow(programName, newDescription)).toBeVisible();
   });
 
-  test('TC-017 — Empty description after edit is saved', async ({ page }) => {
+  test('TC-017 — Empty description after edit is saved', { tag: '@regression' }, async ({ page }) => {
     const programsPage = new ProgramsPage(page);
     const programName = `Description Clear Test-${Date.now()}`;
     const originalDescription = `Non-empty description-${Date.now()}`;

@@ -77,7 +77,7 @@ function deleteConfirmationMessage(programName: string) {
 
 test.describe('DS-263 Delete and edit icons clipped off-screen when a program row is selected', () => {
   test.describe('Happy paths', () => {
-    test('Selected program row keeps edit and delete actions visible', async ({
+    test('Selected program row keeps edit and delete actions visible', { tag: '@smoke' }, async ({
       page,
       trackProgram,
     }) => {
@@ -97,7 +97,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectControlVisibleInsideProgramListPanel(programsPage, programName, 'delete');
     });
 
-    test('Delete from a selected row opens one confirmation dialog', async ({
+    test('Delete from a selected row opens one confirmation dialog', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }) => {
@@ -123,7 +123,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       expect(message).toBe(deleteConfirmationMessage(programName));
     });
 
-    test('Confirming delete from a selected row removes the program', async ({
+    test('Confirming delete from a selected row removes the program', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }) => {
@@ -143,7 +143,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('Edit from a selected row opens the edit form', async ({ page, trackProgram }) => {
+    test('Edit from a selected row opens the edit form', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 
@@ -162,7 +162,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
   });
 
   test.describe('Negative', () => {
-    test('Selected-row actions are not clipped outside the list panel', async ({
+    test('Selected-row actions are not clipped outside the list panel', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -184,7 +184,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Hovering a selected row does not move the actions off-screen', async ({
+    test('Hovering a selected row does not move the actions off-screen', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -205,7 +205,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectControlVisibleInsideProgramListPanel(programsPage, programName, 'edit');
     });
 
-    test('Cancelling delete from a selected row keeps the program', async ({
+    test('Cancelling delete from a selected row keeps the program', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -228,7 +228,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
   });
 
   test.describe('Edge cases', () => {
-    test('Actions stay visible for a selected program with special characters', async ({
+    test('Actions stay visible for a selected program with special characters', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -247,7 +247,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectEditAndDeleteInsideProgramListPanel(programsPage, programName);
     });
 
-    test('Actions stay visible when the selected program is the only row', async ({
+    test('Actions stay visible when the selected program is the only row', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -267,7 +267,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectEditAndDeleteInsideProgramListPanel(programsPage, programName);
     });
 
-    test('Unselected row hover still shows actions inside the panel', async ({
+    test('Unselected row hover still shows actions inside the panel', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -298,7 +298,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
   });
 
   test.describe('API outcomes', () => {
-    test('Delete save returns HTTP 503', async ({ page, trackProgram }) => {
+    test('Delete save returns HTTP 503', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 
@@ -317,7 +317,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectErrorStateOrPageUsable(programsPage);
     });
 
-    test('Program list returns HTTP 200 with an empty list', async ({ page }) => {
+    test('Program list returns HTTP 200 with an empty list', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -327,7 +327,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectPageStaysUsable(programsPage);
     });
 
-    test('Program list returns HTTP 200 with a malformed body', async ({ page }) => {
+    test('Program list returns HTTP 200 with a malformed body', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
       await programsPage.goto();
@@ -337,7 +337,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expect(programsPage.loadErrorMessage).toBeHidden();
     });
 
-    test('Program list or delete returns HTTP 401', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 401', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 
@@ -356,7 +356,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectPageStaysUsable(programsPage);
     });
 
-    test('Program list or delete returns HTTP 403', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 403', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 
@@ -375,7 +375,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectPageStaysUsable(programsPage);
     });
 
-    test('Program list or delete returns HTTP 404', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 404', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 
@@ -394,7 +394,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectPageStaysUsable(programsPage);
     });
 
-    test('Program list or delete returns HTTP 501', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 501', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 
@@ -413,7 +413,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectErrorStateOrPageUsable(programsPage);
     });
 
-    test('Program list or delete returns HTTP 502', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 502', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 
@@ -432,7 +432,7 @@ test.describe('DS-263 Delete and edit icons clipped off-screen when a program ro
       await expectErrorStateOrPageUsable(programsPage);
     });
 
-    test('Program list or delete returns HTTP 300', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 300', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test program-${Date.now()}`;
 

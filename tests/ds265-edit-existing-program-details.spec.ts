@@ -42,7 +42,7 @@ function expectPatchPreservesCreateFields(
 
 test.describe('DS-265 Edit existing program details', () => {
   test.describe('Happy paths', () => {
-    test('TC-001 — Open program for editing', async ({ page, trackProgram }) => {
+    test('TC-001 — Open program for editing', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
       const description = `Full-stack web development program-${Date.now()}`;
@@ -57,7 +57,7 @@ test.describe('DS-265 Edit existing program details', () => {
       await expect(programsPage.editProgramModal.cancelButton).toBeVisible();
     });
 
-    test('TC-002 — Successfully edit a program name', async ({ page, trackProgram }) => {
+    test('TC-002 — Successfully edit a program name', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
       const updatedName = `Web Development 2026 - Updated-${Date.now()}`;
@@ -84,7 +84,7 @@ test.describe('DS-265 Edit existing program details', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('TC-003 — Edit preserves unchanged fields', async ({ page, trackProgram }) => {
+    test('TC-003 — Edit preserves unchanged fields', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
       const originalDescription = `Full-stack web development program-${Date.now()}`;
@@ -122,7 +122,7 @@ test.describe('DS-265 Edit existing program details', () => {
       await expect(programsPage.editProgramModal.descriptionField).toHaveValue(updatedDescription);
     });
 
-    test('TC-004 — Cancel discards edits', async ({ page, trackProgram }) => {
+    test('TC-004 — Cancel discards edits', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
       const description = `Full-stack web development program-${Date.now()}`;
@@ -150,7 +150,7 @@ test.describe('DS-265 Edit existing program details', () => {
   });
 
   test.describe('Negative flows', () => {
-    test('TC-005 — Empty program name cannot be saved', async ({ page, trackProgram }) => {
+    test('TC-005 — Empty program name cannot be saved', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
 
@@ -167,7 +167,7 @@ test.describe('DS-265 Edit existing program details', () => {
       await expect(programsPage.editProgramModal.saveButton).toBeDisabled();
     });
 
-    test('TC-006 — Whitespace-only program name cannot be saved', async ({ page, trackProgram }) => {
+    test('TC-006 — Whitespace-only program name cannot be saved', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
 
@@ -184,7 +184,7 @@ test.describe('DS-265 Edit existing program details', () => {
       await expect(programsPage.editProgramModal.saveButton).toBeDisabled();
     });
 
-    test('TC-007 — Save returns 503 and the edit form stays open', async ({ page, trackProgram }) => {
+    test('TC-007 — Save returns 503 and the edit form stays open', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
       const editedName = `Web Development 2026 X503-${Date.now()}`;
@@ -221,7 +221,7 @@ test.describe('DS-265 Edit existing program details', () => {
     ] as const;
 
     for (const { tc, status } of patchErrorStatuses) {
-      test(`${tc} — Save returns ${status} and the edit form stays open`, async ({
+      test(`${tc} — Save returns ${status} and the edit form stays open`, { tag: '@regression' }, async ({
         page,
         trackProgram,
       }) => {
@@ -254,7 +254,7 @@ test.describe('DS-265 Edit existing program details', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('TC-014 — Empty program list shows no rows to edit', async ({ page }) => {
+    test('TC-014 — Empty program list shows no rows to edit', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -263,7 +263,7 @@ test.describe('DS-265 Edit existing program details', () => {
       await expect(programsPage.programListRows()).toHaveCount(0);
     });
 
-    test('TC-015 — Malformed program list body renders nothing to edit', async ({ page }) => {
+    test('TC-015 — Malformed program list body renders nothing to edit', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
 
@@ -281,7 +281,7 @@ test.describe('DS-265 Edit existing program details', () => {
       await expect(programsPage.userVisibleErrorFeedback()).toBeHidden();
     });
 
-    test('TC-016 — Special characters in edited name and description are preserved', async ({
+    test('TC-016 — Special characters in edited name and description are preserved', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -309,7 +309,7 @@ test.describe('DS-265 Edit existing program details', () => {
       ).toBeVisible();
     });
 
-    test('TC-017 — Clearing the description saves an empty description', async ({
+    test('TC-017 — Clearing the description saves an empty description', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -342,7 +342,7 @@ test.describe('DS-265 Edit existing program details', () => {
   });
 
   test.describe('Accessibility', () => {
-    test('TC-018 — axe scan of open Edit Program dialog (wcag2a, wcag2aa)', async ({
+    test('TC-018 — axe scan of open Edit Program dialog (wcag2a, wcag2aa)', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {

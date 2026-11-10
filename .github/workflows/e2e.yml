@@ -1,14 +1,14 @@
 name: E2E Tests
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
+  push:
   workflow_dispatch:
 
 jobs:
-  test:
+  smoke:
+    if: github.event_name == 'pull_request'
+    name: Smoke
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -29,11 +29,75 @@ jobs:
 
       - run: npx playwright install --with-deps chromium
 
-      - run: npx playwright test
+      - run: npm run test:smoke
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: playwright-report-smoke
+          path: playwright-report/
+          retention-days: 7
+
+  sanity:
+    if: github.event_name == 'push'
+    name: Sanity
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DIDAXIS_URL: ${{ secrets.DIDAXIS_URL }}
+      DIDAXIS_EMAIL: ${{ secrets.DIDAXIS_EMAIL }}
+      DIDAXIS_PASSWORD: ${{ secrets.DIDAXIS_PASSWORD }}
+      DIDAXIS_API_TOKEN: ${{ secrets.DIDAXIS_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:sanity
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-sanity
+          path: playwright-report/
+          retention-days: 7
+
+  regression:
+    if: github.event_name == 'workflow_dispatch'
+    name: Regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      DIDAXIS_URL: ${{ secrets.DIDAXIS_URL }}
+      DIDAXIS_EMAIL: ${{ secrets.DIDAXIS_EMAIL }}
+      DIDAXIS_PASSWORD: ${{ secrets.DIDAXIS_PASSWORD }}
+      DIDAXIS_API_TOKEN: ${{ secrets.DIDAXIS_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm test
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-regression
           path: playwright-report/
           retention-days: 7

@@ -11,6 +11,23 @@
         "command": ".cursor/hooks/no-weaken-assertions.sh",
         "matcher": "Write",
         "failClosed": true
+      },
+      {
+        "command": ".cursor/hooks/constitution-wont.sh",
+        "matcher": "Write",
+        "failClosed": true
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/eval-report.sh",
+        "timeout": 180
+      }
+    ],
+    "subagentStop": [
+      {
+        "command": ".cursor/hooks/eval-report.sh",
+        "timeout": 180
       }
     ]
   }

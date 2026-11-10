@@ -22,7 +22,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('TC-001 — Navigate to program creation form', async ({ page }) => {
+    test('TC-001 — Navigate to program creation form', { tag: '@sanity' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.openNewProgramForm();
 
@@ -33,7 +33,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.newProgramModal.cancelButton).toBeVisible();
     });
 
-    test('TC-002 — Successfully create a program', async ({ page, trackProgram }) => {
+    test('TC-002 — Successfully create a program', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
       const description = `Full-stack web development program-${Date.now()}`;
@@ -51,7 +51,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-003 — Newly created program appears at the top of the list', async ({
+    test('TC-003 — Newly created program appears at the top of the list', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }) => {
@@ -64,7 +64,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.firstProgramListRow()).toContainText(programName);
     });
 
-    test('TC-004 — Create a program with an empty description', async ({ page, trackProgram }) => {
+    test('TC-004 — Create a program with an empty description', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Cybersecurity Bootcamp-${Date.now()}`;
 
@@ -88,7 +88,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expectProgramsPageReady(programsPage);
     });
 
-    test('TC-005 — Validation prevents empty program name', async ({ page }) => {
+    test('TC-005 — Validation prevents empty program name', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.openNewProgramForm();
       await programsPage.newProgramModal.fillDescription(`Optional description-${Date.now()}`);
@@ -96,7 +96,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('TC-006 — Whitespace-only program name keeps Create disabled', async ({ page }) => {
+    test('TC-006 — Whitespace-only program name keeps Create disabled', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.openNewProgramForm();
       await programsPage.newProgramModal.fillProgramName('   ');
@@ -104,7 +104,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('TC-007 — Clearing a typed program name disables Create again', async ({ page }) => {
+    test('TC-007 — Clearing a typed program name disables Create again', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await programsPage.openNewProgramForm();
       await programsPage.newProgramModal.fillProgramName(`Cloud Engineering 2026-${Date.now()}`);
@@ -115,7 +115,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.newProgramModal.createButton).toBeDisabled();
     });
 
-    test('TC-008 — Cancel dismisses the form without saving', async ({ page }) => {
+    test('TC-008 — Cancel dismisses the form without saving', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Temporary Program-${Date.now()}`;
       const description = `Should not be saved-${Date.now()}`;
@@ -140,7 +140,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('TC-009 — Save returns 503 and the form stays open', async ({ page }) => {
+    test('TC-009 — Save returns 503 and the form stays open', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Save Error 503-${Date.now()}`;
 
@@ -157,7 +157,7 @@ test.describe('DS-264 Create new academic program', () => {
     });
 
     for (const status of [401, 403, 404, 501, 502, 300] as const) {
-      test(`TC-010 — Save returns ${status} and the form stays open`, async ({ page }) => {
+      test(`TC-010 — Save returns ${status} and the form stays open`, { tag: '@regression' }, async ({ page }) => {
         const programsPage = new ProgramsPage(page);
         const programName = `Save Error ${status}-${Date.now()}`;
 
@@ -176,7 +176,7 @@ test.describe('DS-264 Create new academic program', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('TC-011 — Empty program list still allows creating the first program', async ({
+    test('TC-011 — Empty program list still allows creating the first program', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -191,7 +191,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.newProgramModal.heading).toBeVisible();
     });
 
-    test('TC-012 — Malformed program list body renders nothing', async ({ page }) => {
+    test('TC-012 — Malformed program list body renders nothing', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
       await programsPage.goto();
@@ -201,7 +201,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.loadErrorMessage).toBeHidden();
     });
 
-    test('TC-013 — Special characters in name and description are preserved', async ({
+    test('TC-013 — Special characters in name and description are preserved', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -217,7 +217,7 @@ test.describe('DS-264 Create new academic program', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-014 — Leading and trailing spaces in the name are trimmed', async ({
+    test('TC-014 — Leading and trailing spaces in the name are trimmed', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -242,7 +242,7 @@ test.describe('DS-264 Create new academic program', () => {
   });
 
   test.describe('Accessibility', () => {
-    test('TC-015 — New Program dialog meets wcag2a and wcag2aa', async ({ page }) => {
+    test('TC-015 — New Program dialog meets wcag2a and wcag2aa', { tag: '@regression' }, async ({ page }) => {
       test.fail(
         true,
         'New Program dialog close control has no accessible name (DS-246)',

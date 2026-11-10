@@ -10,7 +10,7 @@ import {
 
 test.describe('DS-4 Delete program with confirmation', () => {
   test.describe('Positive flows', () => {
-    test('TC-001 — Confirmed deletion removes program from list', async ({ page, trackProgram }) => {
+    test('TC-001 — Confirmed deletion removes program from list', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -27,7 +27,7 @@ test.describe('DS-4 Delete program with confirmation', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('TC-002 — Cancel keeps program in list', async ({ page, trackProgram }) => {
+    test('TC-002 — Cancel keeps program in list', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
       const description = `Keep this row-${Date.now()}`;
@@ -39,7 +39,7 @@ test.describe('DS-4 Delete program with confirmation', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-003 — Confirmation dialog identifies the program being deleted', async ({
+    test('TC-003 — Confirmation dialog identifies the program being deleted', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }) => {
@@ -60,7 +60,7 @@ test.describe('DS-4 Delete program with confirmation', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('TC-004 — List updates after delete without affecting other programs', async ({
+    test('TC-004 — List updates after delete without affecting other programs', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }) => {
@@ -89,7 +89,7 @@ test.describe('DS-4 Delete program with confirmation', () => {
       await expect(programsPage.programRowByName(keepTarget)).toHaveCount(1);
     });
 
-    test('TC-005 — Re-create program with same name after delete', async ({ page, trackProgram }) => {
+    test('TC-005 — Re-create program with same name after delete', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
       const firstDescription = `First life-${Date.now()}`;
@@ -109,7 +109,7 @@ test.describe('DS-4 Delete program with confirmation', () => {
   });
 
   test.describe('Negative flows', () => {
-    test('TC-006 — Failed delete preserves program in list', async ({ page, trackProgram }) => {
+    test('TC-006 — Failed delete preserves program in list', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -130,7 +130,7 @@ test.describe('DS-4 Delete program with confirmation', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('TC-007 — Delete program with special characters in name', async ({ page, trackProgram }) => {
+    test('TC-007 — Delete program with special characters in name', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Informatique & IA - Niveau 2-${Date.now()}`;
 

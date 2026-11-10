@@ -16,7 +16,7 @@ import {
 
 test.describe('DS-294 Mark — Program list filtering and display', () => {
   test.describe('Happy paths', () => {
-    test('TC-001 — Display program list with key details', async ({ page, trackProgram }) => {
+    test('TC-001 — Display program list with key details', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const programName = `DS-294 Display ${suffix}`;
@@ -33,7 +33,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-002 — Each listed program shows its own description', async ({ page, trackProgram }) => {
+    test('TC-002 — Each listed program shows its own description', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = Date.now();
       const alphaName = `DS-294 Alpha ${suffix}`;
@@ -51,7 +51,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       ).toBeHidden();
     });
 
-    test('TC-003 — Empty state when no programs exist', async ({ page }) => {
+    test('TC-003 — Empty state when no programs exist', { tag: '@sanity' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -61,7 +61,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.programListRows()).toHaveCount(0);
     });
 
-    test('TC-004 — Empty state prompts the user to create the first program', async ({
+    test('TC-004 — Empty state prompts the user to create the first program', { tag: '@sanity' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -78,7 +78,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
   });
 
   test.describe('Negative', () => {
-    test('TC-005 — Empty state is not shown when programs exist', async ({
+    test('TC-005 — Empty state is not shown when programs exist', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -101,7 +101,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
     test.describe('Unauthenticated access', () => {
       test.use({ storageState: { cookies: [], origins: [] } });
 
-      test('TC-006 — Unauthenticated user cannot view the program list', async ({ page }) => {
+      test('TC-006 — Unauthenticated user cannot view the program list', { tag: '@regression' }, async ({ page }) => {
         const programsPage = new ProgramsPage(page);
         const loginPage = new LoginPage(page);
 
@@ -113,7 +113,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       });
     });
 
-    test('TC-007 — Failed program list load is not presented as "no programs" (401)', async ({
+    test('TC-007 — Failed program list load is not presented as "no programs" (401)', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -128,7 +128,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('TC-008 — Failed program list load is not presented as "no programs" (403)', async ({
+    test('TC-008 — Failed program list load is not presented as "no programs" (403)', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -143,7 +143,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('TC-009 — Failed program list load is not presented as "no programs" (404)', async ({
+    test('TC-009 — Failed program list load is not presented as "no programs" (404)', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -158,7 +158,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('TC-010 — Failed program list load is not presented as "no programs" (501)', async ({
+    test('TC-010 — Failed program list load is not presented as "no programs" (501)', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -173,7 +173,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('TC-011 — Failed program list load is not presented as "no programs" (502)', async ({
+    test('TC-011 — Failed program list load is not presented as "no programs" (502)', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -188,7 +188,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('TC-012 — Failed program list load is not presented as "no programs" (300)', async ({
+    test('TC-012 — Failed program list load is not presented as "no programs" (300)', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -203,7 +203,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('TC-013 — Malformed program list response does not blank the page', async ({
+    test('TC-013 — Malformed program list response does not blank the page', { tag: '@regression' }, async ({
       page,
     }) => {
       const programsPage = new ProgramsPage(page);
@@ -216,7 +216,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.newProgramButton).toBeVisible();
     });
 
-    test('TC-014 — Failed save does not add a phantom row to the list', async ({ page }) => {
+    test('TC-014 — Failed save does not add a phantom row to the list', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `DS-294 Save 503 ${Date.now()}`;
 
@@ -240,7 +240,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('TC-015 — Special characters in name and description are displayed exactly', async ({
+    test('TC-015 — Special characters in name and description are displayed exactly', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -256,7 +256,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       ).toBeVisible();
     });
 
-    test('TC-016 — Program with an empty description is still listed', async ({
+    test('TC-016 — Program with an empty description is still listed', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -270,7 +270,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.deleteButton(programName)).toBeVisible();
     });
 
-    test('TC-017 — Long program name is listed in full', async ({ page, trackProgram }) => {
+    test('TC-017 — Long program name is listed in full', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const suffix = String(Date.now());
       const base = `DS-294 Long ${suffix} `;
@@ -289,7 +289,7 @@ test.describe('DS-294 Mark — Program list filtering and display', () => {
       await expect(programsPage.programNameInRow(programName)).toBeVisible();
     });
 
-    test('TC-018 — Newly created program appears at the top of a large list', async ({
+    test('TC-018 — Newly created program appears at the top of a large list', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {

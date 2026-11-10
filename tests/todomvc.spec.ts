@@ -8,7 +8,7 @@ test.describe('Positive flows', () => {
     await todoPage.openEmptyApp();
   });
 
-  test('TC-001 — New todo appears in the list after valid entry', async ({ page }) => {
+  test('TC-001 — New todo appears in the list after valid entry', { tag: '@smoke' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.clickNewTodoInput();
     await todoPage.addTodo('Buy milk');
@@ -28,7 +28,7 @@ test.describe('Positive flows', () => {
     expect(stored[0].completed).toBe(false);
   });
 
-  test('TC-002 — Multiple todos can be added in sequence', async ({ page }) => {
+  test('TC-002 — Multiple todos can be added in sequence', { tag: '@sanity' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Walk the dog');
     await todoPage.addTodo('Pay bills');
@@ -40,7 +40,7 @@ test.describe('Positive flows', () => {
     await expect(todoPage.toggleTodo('Walk the dog')).not.toBeChecked();
   });
 
-  test('TC-003 — Todo is marked completed when its toggle is used', async ({ page }) => {
+  test('TC-003 — Todo is marked completed when its toggle is used', { tag: '@sanity' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     await todoPage.toggleTodo('Buy milk').click();
@@ -54,7 +54,7 @@ test.describe('Positive flows', () => {
     expect(stored[0].completed).toBe(true);
   });
 
-  test('TC-004 — Completed todo can be toggled back to active', async ({ page }) => {
+  test('TC-004 — Completed todo can be toggled back to active', { tag: '@sanity' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     const toggle = todoPage.toggleTodo('Buy milk');
@@ -69,7 +69,7 @@ test.describe('Positive flows', () => {
     expect(stored[0].completed).toBe(false);
   });
 
-  test('TC-005 — Mark all as complete completes every active todo', async ({ page }) => {
+  test('TC-005 — Mark all as complete completes every active todo', { tag: '@sanity' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Walk the dog');
     await todoPage.addTodo('Pay bills');
@@ -84,7 +84,7 @@ test.describe('Positive flows', () => {
     expect(stored.every((todo) => todo.completed)).toBe(true);
   });
 
-  test('TC-006 — Todo is removed from the list when Delete is used', async ({ page }) => {
+  test('TC-006 — Todo is removed from the list when Delete is used', { tag: '@sanity' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     await todoPage.deleteTodo('Buy milk');
@@ -99,7 +99,7 @@ test.describe('Positive flows', () => {
     expect(stored).toHaveLength(0);
   });
 
-  test('TC-007 — Clear completed removes only completed todos', async ({ page }) => {
+  test('TC-007 — Clear completed removes only completed todos', { tag: '@sanity' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Walk the dog');
     await todoPage.addTodo('Pay bills');
@@ -116,7 +116,7 @@ test.describe('Positive flows', () => {
     expect(stored[0].title).toBe('Walk the dog');
   });
 
-  test('TC-008 — Completed todo appears under Completed filter', async ({ page }) => {
+  test('TC-008 — Completed todo appears under Completed filter', { tag: '@sanity' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     await todoPage.addTodo('Walk the dog');
@@ -135,7 +135,7 @@ test.describe('Negative flows', () => {
     await todoPage.openEmptyApp();
   });
 
-  test('TC-009 — Empty submission does not create a todo', async ({ page }) => {
+  test('TC-009 — Empty submission does not create a todo', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.newTodoInput.press('Enter');
 
@@ -145,7 +145,7 @@ test.describe('Negative flows', () => {
     expect(stored).toHaveLength(0);
   });
 
-  test('TC-010 — Whitespace-only submission does not create a todo', async ({ page }) => {
+  test('TC-010 — Whitespace-only submission does not create a todo', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('   ');
 
@@ -154,7 +154,7 @@ test.describe('Negative flows', () => {
     expect(stored).toHaveLength(0);
   });
 
-  test('TC-011 — Delete control does not remove other todos', async ({ page }) => {
+  test('TC-011 — Delete control does not remove other todos', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     await todoPage.addTodo('Walk the dog');
@@ -165,7 +165,7 @@ test.describe('Negative flows', () => {
     await expect(todoPage.todoCount).toHaveText('1 item left');
   });
 
-  test('TC-012 — Toggling complete on one item does not complete unrelated items', async ({
+  test('TC-012 — Toggling complete on one item does not complete unrelated items', { tag: '@regression' }, async ({
     page,
   }) => {
     const todoPage = new TodoMvcPage(page);
@@ -178,7 +178,7 @@ test.describe('Negative flows', () => {
     await expect(todoPage.todoCount).toHaveText('1 item left');
   });
 
-  test('TC-013 — Active filter does not show completed todos', async ({ page }) => {
+  test('TC-013 — Active filter does not show completed todos', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     await todoPage.addTodo('Walk the dog');
@@ -190,7 +190,7 @@ test.describe('Negative flows', () => {
     await expect(todoPage.todoRowByTitle('Buy milk')).toHaveCount(0);
   });
 
-  test('TC-014 — Clear completed does not remove active todos', async ({ page }) => {
+  test('TC-014 — Clear completed does not remove active todos', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Walk the dog');
     await todoPage.addTodo('Pay bills');
@@ -208,7 +208,7 @@ test.describe('Edge cases', () => {
     await todoPage.openEmptyApp();
   });
 
-  test('TC-015 — Duplicate titles are allowed as separate todos', async ({ page }) => {
+  test('TC-015 — Duplicate titles are allowed as separate todos', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     await todoPage.addTodo('Buy milk');
@@ -223,7 +223,7 @@ test.describe('Edge cases', () => {
     expect(stored[1].title).toBe('Buy milk');
   });
 
-  test('TC-016 — Todo title with special characters is stored and displayed correctly', async ({
+  test('TC-016 — Todo title with special characters is stored and displayed correctly', { tag: '@regression' }, async ({
     page,
   }) => {
     const todoPage = new TodoMvcPage(page);
@@ -240,7 +240,7 @@ test.describe('Edge cases', () => {
     expect(stored[0].title).toBe(title);
   });
 
-  test('TC-017 — Long todo title is accepted and stored in full', async ({ page }) => {
+  test('TC-017 — Long todo title is accepted and stored in full', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     const title = 'A'.repeat(500);
     await todoPage.addTodo(title);
@@ -252,7 +252,7 @@ test.describe('Edge cases', () => {
     expect(stored[0].title).toHaveLength(500);
   });
 
-  test('TC-018 — Leading and trailing spaces in title are trimmed on add', async ({ page }) => {
+  test('TC-018 — Leading and trailing spaces in title are trimmed on add', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('  Trim me  ');
 
@@ -261,7 +261,7 @@ test.describe('Edge cases', () => {
     expect(stored[0].title).toBe('Trim me');
   });
 
-  test('TC-019 — Unicode and emoji in todo title', async ({ page }) => {
+  test('TC-019 — Unicode and emoji in todo title', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     const title = 'Buy naan 🥖 日本語';
     await todoPage.addTodo(title);
@@ -273,7 +273,7 @@ test.describe('Edge cases', () => {
     await expect(todoPage.todoRowByTitle(title)).toHaveCount(0);
   });
 
-  test('TC-020 — Todos survive page reload via localStorage', async ({ page }) => {
+  test('TC-020 — Todos survive page reload via localStorage', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     const before = await todoPage.readStoredTodos();
@@ -286,7 +286,7 @@ test.describe('Edge cases', () => {
     expect(after).toEqual(before);
   });
 
-  test('TC-021 — Deleting the last todo returns UI to initial empty state', async ({ page }) => {
+  test('TC-021 — Deleting the last todo returns UI to initial empty state', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.addTodo('Buy milk');
     await todoPage.deleteTodo('Buy milk');
@@ -297,7 +297,7 @@ test.describe('Edge cases', () => {
     await expect(todoPage.newTodoInput).toBeVisible();
   });
 
-  test('TC-022 — Rapid Enter key presses create distinct todos', async ({ page }) => {
+  test('TC-022 — Rapid Enter key presses create distinct todos', { tag: '@regression' }, async ({ page }) => {
     const todoPage = new TodoMvcPage(page);
     await todoPage.newTodoInput.fill('One');
     await todoPage.newTodoInput.press('Enter');

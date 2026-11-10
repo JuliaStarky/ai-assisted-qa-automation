@@ -24,7 +24,7 @@ function isProgramDeleteRequest(url: string, method: string): boolean {
 
 test.describe('DS-268 Delete program with confirmation', () => {
   test.describe('Happy paths', () => {
-    test('TC-001 — Delete program with confirmation', async ({ page, trackProgram }, testInfo) => {
+    test('TC-001 — Delete program with confirmation', { tag: '@smoke' }, async ({ page, trackProgram }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const suffix = uniqueSuffix(testInfo);
       const programName = `Test Program-${suffix}`;
@@ -50,7 +50,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('TC-002 — Deleted program stays gone after reload', async ({ page, trackProgram }, testInfo) => {
+    test('TC-002 — Deleted program stays gone after reload', { tag: '@sanity' }, async ({ page, trackProgram }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const suffix = uniqueSuffix(testInfo);
       const programName = `Test Program-${suffix}`;
@@ -71,7 +71,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('TC-003 — Confirmation dialog names the program and warns about consequences', async ({
+    test('TC-003 — Confirmation dialog names the program and warns about consequences', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -93,7 +93,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
       expect(message).toBe(expectedDeleteConfirmMessage(programName));
     });
 
-    test('TC-004 — Deleting one program leaves other programs intact', async ({
+    test('TC-004 — Deleting one program leaves other programs intact', { tag: '@sanity' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -125,7 +125,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
   });
 
   test.describe('Negative flows', () => {
-    test('TC-005 — Cancel program deletion', async ({ page, trackProgram }, testInfo) => {
+    test('TC-005 — Cancel program deletion', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const suffix = uniqueSuffix(testInfo);
       const programName = `Test Program-${suffix}`;
@@ -151,7 +151,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
       await expect(programsPage.descriptionInProgramRow(programName, description)).toBeVisible();
     });
 
-    test('TC-006 — Delete returns 503 and the program remains', async ({ page, trackProgram }, testInfo) => {
+    test('TC-006 — Delete returns 503 and the program remains', { tag: '@regression' }, async ({ page, trackProgram }, testInfo) => {
       const programsPage = new ProgramsPage(page);
       const suffix = uniqueSuffix(testInfo);
       const programName = `Test Program-${suffix}`;
@@ -179,7 +179,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
         status
       ];
 
-      test(`TC-${tcNumber} — Delete returns ${status} and the program remains`, async ({
+      test(`TC-${tcNumber} — Delete returns ${status} and the program remains`, { tag: '@regression' }, async ({
         page,
         trackProgram,
       }, testInfo) => {
@@ -208,7 +208,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
   });
 
   test.describe('Edge cases', () => {
-    test('TC-013 — Empty program list shows no delete actions', async ({ page }) => {
+    test('TC-013 — Empty program list shows no delete actions', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -218,7 +218,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
       await expect(programsPage.allDeleteButtons()).toHaveCount(0);
     });
 
-    test('TC-014 — Malformed program list body renders nothing to delete', async ({ page }) => {
+    test('TC-014 — Malformed program list body renders nothing to delete', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
 
@@ -233,7 +233,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
       await expect(programsPage.loadErrorMessage).toBeHidden();
     });
 
-    test('TC-015 — Delete a program whose name has special characters', async ({
+    test('TC-015 — Delete a program whose name has special characters', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {
@@ -258,7 +258,7 @@ test.describe('DS-268 Delete program with confirmation', () => {
   });
 
   test.describe('Accessibility', () => {
-    test('TC-016 — Delete control has accessible name and is keyboard operable', async ({
+    test('TC-016 — Delete control has accessible name and is keyboard operable', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }, testInfo) => {

@@ -16,7 +16,7 @@ import {
 
 test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs', () => {
   test.describe('Happy paths', () => {
-    test('Double-clicking delete opens a single confirmation dialog', async ({ page, trackProgram }) => {
+    test('Double-clicking delete opens a single confirmation dialog', { tag: '@smoke' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -36,7 +36,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       expect(dialogCount).toBe(1);
     });
 
-    test('Confirming the single dialog deletes the program once', async ({ page, trackProgram }) => {
+    test('Confirming the single dialog deletes the program once', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -58,7 +58,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await programsPage.waitForNoFurtherNativeDialog();
     });
 
-    test('A single click still opens one confirmation dialog', async ({ page, trackProgram }) => {
+    test('A single click still opens one confirmation dialog', { tag: '@sanity' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Web Development 2026-${Date.now()}`;
 
@@ -78,7 +78,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
   });
 
   test.describe('Negative', () => {
-    test('Double-click does not open a second confirmation dialog', async ({ page, trackProgram }) => {
+    test('Double-click does not open a second confirmation dialog', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -99,7 +99,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
     });
 
-    test('Cancelling the single dialog after a double-click keeps the program', async ({
+    test('Cancelling the single dialog after a double-click keeps the program', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -124,7 +124,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await programsPage.waitForNoFurtherNativeDialog();
     });
 
-    test('Unauthorized delete after one confirmation keeps the program', async ({
+    test('Unauthorized delete after one confirmation keeps the program', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -153,7 +153,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
   });
 
   test.describe('Edge cases', () => {
-    test('Double-click delete on a special-character name opens one dialog', async ({
+    test('Double-click delete on a special-character name opens one dialog', { tag: '@regression' }, async ({
       page,
       trackProgram,
     }) => {
@@ -177,7 +177,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       expect(messages[0]).toContain(programName);
     });
 
-    test('Double-click delete on the only program opens one dialog', async ({ page, trackProgram }) => {
+    test('Double-click delete on the only program opens one dialog', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -198,7 +198,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
     });
 
-    test('Triple-click on the delete control still opens one dialog', async ({ page, trackProgram }) => {
+    test('Triple-click on the delete control still opens one dialog', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -217,7 +217,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
   });
 
   test.describe('API outcomes', () => {
-    test('Delete save returns HTTP 503', async ({ page, trackProgram }) => {
+    test('Delete save returns HTTP 503', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -241,7 +241,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list returns HTTP 200 with an empty list', async ({ page }) => {
+    test('Program list returns HTTP 200 with an empty list', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockEmptyProgramList(page);
       await programsPage.goto();
@@ -251,7 +251,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list returns HTTP 200 with a malformed body', async ({ page }) => {
+    test('Program list returns HTTP 200 with a malformed body', { tag: '@regression' }, async ({ page }) => {
       const programsPage = new ProgramsPage(page);
       await mockProgramsListMalformedResponse(page);
       await programsPage.goto();
@@ -260,7 +260,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.loadErrorMessage).toBeHidden();
     });
 
-    test('Program list or delete returns HTTP 403', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 403', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -284,7 +284,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 404', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 404', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -308,7 +308,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 501', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 501', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -332,7 +332,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 502', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 502', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
@@ -356,7 +356,7 @@ test.describe('DS-262 Double-clicking delete icon opens two confirmation dialogs
       await expect(programsPage.heading).toBeVisible();
     });
 
-    test('Program list or delete returns HTTP 300', async ({ page, trackProgram }) => {
+    test('Program list or delete returns HTTP 300', { tag: '@regression' }, async ({ page, trackProgram }) => {
       const programsPage = new ProgramsPage(page);
       const programName = `Test Program-${Date.now()}`;
 
