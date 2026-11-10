@@ -25,6 +25,8 @@ export class ProgramsPage {
   readonly noSemestersMessage: Locator;
   readonly addSemesterButton: Locator;
   readonly newSemesterModal: NewSemesterModal;
+  readonly pageAlerts: Locator;
+  readonly anyEditButton: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
@@ -53,6 +55,8 @@ export class ProgramsPage {
     this.noSemestersMessage = page.getByText('No semesters yet', { exact: true });
     this.addSemesterButton = page.getByRole('button', { name: '+ Semester' });
     this.newSemesterModal = new NewSemesterModal(page);
+    this.pageAlerts = page.getByRole('alert');
+    this.anyEditButton = page.getByRole('button', { name: /^Edit / });
   }
 
   selectedProgramHeading(programName: string): Locator {
