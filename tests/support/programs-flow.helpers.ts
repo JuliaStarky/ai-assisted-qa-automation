@@ -82,6 +82,10 @@ export async function mockProgramsPostStatus(page: Page, status: number) {
   });
 }
 
+export async function mockProgramsPostWithStatus(page: Page, status: number) {
+  await mockProgramsPostStatus(page, status);
+}
+
 export async function mockProgramPatchStatus(page: Page, status: number) {
   await page.route('**/api/programs/*', async (route) => {
     if (route.request().method() === 'PATCH') {

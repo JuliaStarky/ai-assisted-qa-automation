@@ -32,7 +32,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await programsPage.deleteProgramWithDialog(programName, 'accept');
 
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
-      await expect(programsPage.userVisibleErrorFeedback).toBeVisible();
+      await expect(programsPage.userVisibleErrorFeedback()).toBeVisible();
     });
 
     test('Successful delete still removes the program', async ({ page, trackProgram }) => {
@@ -50,7 +50,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await programsPage.deleteProgramWithDialog(programName, 'accept');
 
       await expect(programsPage.programRowByName(programName)).toHaveCount(0);
-      await expect(programsPage.userVisibleErrorFeedback).toBeHidden();
+      await expect(programsPage.userVisibleErrorFeedback()).toBeHidden();
     });
   });
 
@@ -70,7 +70,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await programsPage.deleteProgramWithDialog(programName, 'dismiss');
 
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
-      await expect(programsPage.userVisibleErrorFeedback).toBeHidden();
+      await expect(programsPage.userVisibleErrorFeedback()).toBeHidden();
     });
 
     test('Unauthorized delete keeps the program', async ({ page, trackProgram }) => {
@@ -143,7 +143,7 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await programsPage.deleteProgramWithDialog(programName, 'accept');
 
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
-      await expect(programsPage.userVisibleErrorFeedback).toBeVisible();
+      await expect(programsPage.userVisibleErrorFeedback()).toBeVisible();
     });
 
     test('Failed delete of the only program does not show the empty state', async ({
@@ -183,11 +183,11 @@ test.describe('DS-261 No error message shown when program delete API fails', () 
       await mockProgramDeleteServerError(page);
       await programsPage.deleteProgramWithDialog(programName, 'accept');
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
-      await expect(programsPage.userVisibleErrorFeedback).toBeVisible();
+      await expect(programsPage.userVisibleErrorFeedback()).toBeVisible();
 
       await programsPage.deleteProgramWithDialog(programName, 'accept');
       await expect(programsPage.programRowByName(programName)).toHaveCount(1);
-      await expect(programsPage.userVisibleErrorFeedback).toBeVisible();
+      await expect(programsPage.userVisibleErrorFeedback()).toBeVisible();
     });
   });
 

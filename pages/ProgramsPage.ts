@@ -29,7 +29,6 @@ export class ProgramsPage {
   readonly anyEditButton: Locator;
   readonly programSearchBox: Locator;
   readonly programListAlertOrStatus: Locator;
-  readonly userVisibleErrorFeedback: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
@@ -62,7 +61,6 @@ export class ProgramsPage {
     this.anyEditButton = page.getByRole('button', { name: /^Edit / });
     this.programSearchBox = page.getByRole('searchbox');
     this.programListAlertOrStatus = page.getByRole('alert').or(page.getByRole('status'));
-    this.userVisibleErrorFeedback = page.getByRole('alert').or(page.getByRole('status'));
   }
 
   selectedProgramHeading(programName: string): Locator {
@@ -223,6 +221,10 @@ export class ProgramsPage {
 
   editSessionExpiredFeedback(): Locator {
     return this.signInButton.or(this.sessionExpiredMessage);
+  }
+
+  createSessionExpiredFeedback(): Locator {
+    return this.signInButton.or(this.sessionExpiredMessage).or(this.newProgramModal.heading);
   }
 
   userVisibleErrorFeedback(): Locator {
