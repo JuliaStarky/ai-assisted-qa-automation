@@ -180,6 +180,48 @@ export function isProgramDeleteRequest(url: string, method: string) {
   return url.includes('/api/programs') && method === 'DELETE';
 }
 
+export async function mockProgramDeleteHttpStatus(page: Page, status: number) {
+  await page.route('**/api/programs/*', async (route) => {
+    if (route.request().method() === 'DELETE') {
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Delete request failed' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
+export async function mockProgramDeleteServiceUnavailable(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 503);
+}
+
+export async function mockProgramDeleteUnauthorized(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 401);
+}
+
+export async function mockProgramDeleteForbidden(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 403);
+}
+
+export async function mockProgramDeleteNotFound(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 404);
+}
+
+export async function mockProgramDeleteNotImplemented(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 501);
+}
+
+export async function mockProgramDeleteBadGateway(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 502);
+}
+
+export async function mockProgramDeleteMultipleChoices(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 300);
+}
+
 export function isCreateProgramPost(url: string, method: string) {
   return url.includes('/api/programs') && method === 'POST';
 }
