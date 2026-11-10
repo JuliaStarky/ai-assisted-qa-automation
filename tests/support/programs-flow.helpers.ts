@@ -98,6 +98,10 @@ export async function mockProgramPatchStatus(page: Page, status: number) {
   });
 }
 
+export async function mockProgramPatchWithStatus(page: Page, status: number) {
+  await mockProgramPatchStatus(page, status);
+}
+
 export async function mockProgramsPostServiceUnavailable(page: Page) {
   await mockProgramsPostStatus(page, 503);
 }
@@ -194,6 +198,30 @@ export async function mockProgramDeleteStatus(page: Page, status: number) {
     }
     await route.continue();
   });
+}
+
+export async function mockProgramPatchServiceUnavailable(page: Page) {
+  await mockProgramPatchWithStatus(page, 503);
+}
+
+export async function mockProgramPatchForbidden(page: Page) {
+  await mockProgramPatchWithStatus(page, 403);
+}
+
+export async function mockProgramPatchNotFound(page: Page) {
+  await mockProgramPatchWithStatus(page, 404);
+}
+
+export async function mockProgramPatchNotImplemented(page: Page) {
+  await mockProgramPatchWithStatus(page, 501);
+}
+
+export async function mockProgramPatchBadGateway(page: Page) {
+  await mockProgramPatchWithStatus(page, 502);
+}
+
+export async function mockProgramPatchMultipleChoices(page: Page) {
+  await mockProgramPatchWithStatus(page, 300);
 }
 
 export async function mockProgramDeleteServerError(page: Page) {
