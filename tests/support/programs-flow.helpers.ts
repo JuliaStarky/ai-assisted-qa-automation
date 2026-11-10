@@ -194,6 +194,10 @@ export async function mockProgramDeleteHttpStatus(page: Page, status: number) {
   });
 }
 
+export async function mockProgramDeleteWithStatus(page: Page, status: number) {
+  await mockProgramDeleteHttpStatus(page, status);
+}
+
 export async function mockProgramDeleteServiceUnavailable(page: Page) {
   await mockProgramDeleteHttpStatus(page, 503);
 }
@@ -219,6 +223,34 @@ export async function mockProgramDeleteBadGateway(page: Page) {
 }
 
 export async function mockProgramDeleteMultipleChoices(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 300);
+}
+
+export async function mockProgramDelete503(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 503);
+}
+
+export async function mockProgramDelete401(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 401);
+}
+
+export async function mockProgramDelete403(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 403);
+}
+
+export async function mockProgramDelete404(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 404);
+}
+
+export async function mockProgramDelete501(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 501);
+}
+
+export async function mockProgramDelete502(page: Page) {
+  await mockProgramDeleteHttpStatus(page, 502);
+}
+
+export async function mockProgramDelete300(page: Page) {
   await mockProgramDeleteHttpStatus(page, 300);
 }
 
