@@ -40,7 +40,7 @@ async function deleteTrackedPrograms(): Promise<void> {
     return;
   }
 
-  const token = process.env.DIDAXIS_API_TOKEN ?? sessionBearerToken;
+  const token = process.env.DIDAXIS_API_TOKEN?.trim() || sessionBearerToken;
   if (!token) {
     console.warn('[api-cleanup] Skipping delete: set DIDAXIS_API_TOKEN or log in so a Bearer token is captured');
     return;

@@ -30,6 +30,20 @@ export async function mockProgramsListServerError(page: Page) {
   });
 }
 
+export async function mockProgramsListStatus(page: Page, status: number) {
+  await page.route('**/api/programs', async (route) => {
+    if (route.request().method() === 'GET') {
+      await route.fulfill({
+        status,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Error' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+}
+
 export async function mockProgramsListMalformedResponse(page: Page) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'GET') {
@@ -157,6 +171,40 @@ export async function expectFailedSaveKeepsNewProgramFormOpen(
   await expect(programsPage.newProgramModal.programNameField).toHaveValue(programName);
   await expect(programsPage.newProgramModal.createButton).toBeEnabled();
   await expect(programsPage.programRowByName(programName)).toHaveCount(0);
+}
+
+export async function expectNoErrorAlertShown(programsPage: ProgramsPage) {
+  await expect(programsPage.errorAlert).toHaveCount(0);
+}
+
+export function trackCreateProgramPostRequests(page: Page) {
+  let postCount = 0;
+  const onRequest = (request: { url: () => string; method: () => string }) => {
+    if (isCreateProgramPost(request.url(), request.method())) {
+      postCount += 1;
+    }
+  };
+  page.on('request', onRequest);
+  return {
+    getPostCount: () => postCount,
+    stop: () => page.off('request', onRequest),
+  };
+}
+
+export async function expectFailedSaveKeepsNewProgramFormOpenWithNoError(
+  programsPage: ProgramsPage,
+  programName: string,
+) {
+  await expectFailedSaveKeepsNewProgramFormOpen(programsPage, programName);
+  await expectNoErrorAlertShown(programsPage);
+}
+
+export async function gotoProgramsAndOpenNewProgramForm(page: Page) {
+  const programsPage = new ProgramsPage(page);
+  await programsPage.goto();
+  await expectProgramsPageReady(programsPage);
+  await programsPage.openNewProgramForm();
+  return programsPage;
 }
 
 export async function createProgramWithTracking(

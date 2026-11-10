@@ -18,6 +18,7 @@ export class ProgramsPage {
   readonly emptyStateCreateProgramButton: Locator;
   readonly subtitle: Locator;
   readonly loadErrorMessage: Locator;
+  readonly errorAlert: Locator;
   readonly programNameColumnLabel: Locator;
   readonly programTableColumnHeader: Locator;
   readonly semestersPanelSubtitle: Locator;
@@ -45,6 +46,7 @@ export class ProgramsPage {
     this.emptyStateCreateProgramButton = page.getByRole('button', { name: 'Create Program' });
     this.subtitle = page.getByText('Manage academic programs and semesters');
     this.loadErrorMessage = page.getByText(/error|failed|retry|unable to load/i);
+    this.errorAlert = page.getByRole('alert');
     this.programNameColumnLabel = page.getByText('Program', { exact: true });
     this.programTableColumnHeader = page.getByRole('columnheader', { name: 'Program' });
     this.semestersPanelSubtitle = page.getByText('Semesters & scheduling config');
