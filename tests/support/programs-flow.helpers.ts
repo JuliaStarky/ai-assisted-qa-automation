@@ -172,6 +172,25 @@ export function isCreateProgramPost(url: string, method: string) {
   return url.includes('/api/programs') && method === 'POST';
 }
 
+export function isProgramPatch(url: string, method: string) {
+  if (method !== 'PATCH') {
+    return false;
+  }
+  const path = url.includes('://') ? new URL(url).pathname : url.split('?')[0] ?? url;
+  return /^\/api\/programs\/[^/]+$/.test(path);
+}
+
+export async function clickSaveAndWaitForPatchResponse(
+  page: Page,
+  programsPage: ProgramsPage,
+) {
+  const responsePromise = page.waitForResponse((resp) =>
+    isProgramPatch(resp.url(), resp.request().method()),
+  );
+  await programsPage.editProgramModal.clickSave();
+  return responsePromise;
+}
+
 export async function expectProgramsPageReady(programsPage: ProgramsPage) {
   await expect(programsPage.heading).toBeVisible();
   await expect(programsPage.newProgramButton).toBeVisible();
