@@ -44,6 +44,12 @@ export async function mockProgramsListStatus(page: Page, status: number) {
   });
 }
 
+export function waitForProgramsListGet(page: Page) {
+  return page.waitForResponse(
+    (resp) => resp.url().includes('/api/programs') && resp.request().method() === 'GET',
+  );
+}
+
 export async function mockProgramsListMalformedResponse(page: Page) {
   await page.route('**/api/programs', async (route) => {
     if (route.request().method() === 'GET') {

@@ -27,6 +27,8 @@ export class ProgramsPage {
   readonly newSemesterModal: NewSemesterModal;
   readonly pageAlerts: Locator;
   readonly anyEditButton: Locator;
+  readonly programSearchBox: Locator;
+  readonly programListAlertOrStatus: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: 'Programs' });
@@ -57,6 +59,8 @@ export class ProgramsPage {
     this.newSemesterModal = new NewSemesterModal(page);
     this.pageAlerts = page.getByRole('alert');
     this.anyEditButton = page.getByRole('button', { name: /^Edit / });
+    this.programSearchBox = page.getByRole('searchbox');
+    this.programListAlertOrStatus = page.getByRole('alert').or(page.getByRole('status'));
   }
 
   selectedProgramHeading(programName: string): Locator {
@@ -175,6 +179,10 @@ export class ProgramsPage {
 
   descriptionInProgramRow(programName: string, description: string): Locator {
     return this.programRowByNameAndDescription(programName, description).getByText(description);
+  }
+
+  paragraphsInProgramRow(programName: string): Locator {
+    return this.programRowByName(programName).getByRole('paragraph');
   }
 
   visibleText(text: string): Locator {
