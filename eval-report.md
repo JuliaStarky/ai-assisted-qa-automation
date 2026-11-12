@@ -1,6 +1,6 @@
 # Suite reliability report
 
-Generated 2026-11-11 13:37 UTC (GitHub Actions) by `scripts/eval-report.py`. This file is rewritten after `.github/workflows/test-generation.yml` finishes and after a local agent or orchestrator stops. Cursor has no built-in telemetry for these four numbers.
+Generated 2026-11-12 14:06 UTC (GitHub Actions) by `scripts/eval-report.py`. This file is rewritten after `.github/workflows/test-generation.yml` finishes and after a local agent or orchestrator stops. Cursor has no built-in telemetry for these four numbers.
 
 ## Flake rate
 
@@ -68,6 +68,8 @@ No pull request title contains `heal`.
 ## Ask vs guess
 
 <!-- ask-vs-guess:start -->
+Kept from the last machine that had IDE transcripts. This run is GitHub Actions, which has no Cursor session store.
+
 Kept from the last machine that had IDE transcripts. This run is GitHub Actions, which has no Cursor session store.
 
 Kept from the last machine that had IDE transcripts. This run is GitHub Actions, which has no Cursor session store.
